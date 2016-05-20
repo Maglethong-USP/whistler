@@ -1,0 +1,58 @@
+<!-- Grupo:
+	Rafael Gallo
+	Andreas Munte
+	Guilherme Muzzi
+-->
+<!DOCTYPE html>
+
+<div>
+	<div class="panel panel-default">
+		<div id="" class="panel-body" style="background-color: #00cc99;">
+			<div class="row">
+				<div class="col-md-12">
+					<h1 align="center">Whistler</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<h2 align="center">Bem Vindo!</h2>
+
+		<div class="row">
+			<div class="col-md-6" ng-controller="LoginController as login">
+				<h3 align="center">Entrar:</h3>
+				<form role="form" ng-submit="login.Login()">
+					<div class="form-group">
+						<label for="usrname">Nome de Usuário:</label>
+						<input type="text" class="form-control" id="usrname" ng-model="loginForm.login"/>
+					</div>
+					<div class="form-group">
+						<label for="pwd">Senha:</label>
+						<input type="password" class="form-control" id="pwd" ng-model="loginForm.password"/>
+					</div>
+					<input type="submit" class="btn btn-default" value="Entrar"/>
+				</form>
+			</div>
+
+			<div class="col-md-6" ng-controller="RegisterController as register">
+				<h3 align="center">Cadastrar:</h3>
+				<form role="form" ng-submit="register.Register()">
+					<div class="form-group">
+						<label for="profilename">Nome de Perfil:</label>
+						<input type="text" class="form-control" id="profilename" ng-model="registerForm.profileName"/>
+					</div>
+					<div class="form-group">
+						<label for="usrname">Nome de Usuário:</label>
+						<input type="text" class="form-control" id="usrname" ng-model="registerForm.login"/>
+					</div>
+					<div class="form-group">
+						<label for="pwd">Senha:</label>
+						<input type="password" class="form-control" id="pwd" ng-model="registerForm.password"/>
+					</div>
+					<input type="submit" class="btn btn-default" value="Cadastrar"/>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>

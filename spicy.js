@@ -2,7 +2,17 @@
 	function(angular) 
 	{
 		'use strict';
-		var myApp = angular.module('spicyApp', []);
+		var myApp = angular.module('spicyApp', ['ngRoute']);
+		
+
+		// Route Provider
+		myApp.config(function ($routeProvider, $locationProvider) 
+		{
+			$routeProvider.when('/', {
+				templateUrl: 'templates/login.html',
+				controller: 'UserController'
+			});
+		});
 
 		// User Login/Logout/Register Service
 		myApp.factory('UserService', function()
@@ -63,6 +73,17 @@
 				}
 			};
 		});
+
+		// User Controller
+		myApp.controller('UserController', ['$scope', 'UserService', function( $scope, UserService )
+		{
+			$scope.user = UserService.Get();
+
+			$scope.$watch(function () { return UserService.Get() }, function (newVal, oldVal) {
+				if (typeof newVal !== 'undefined')
+					$scope.user = UserService.Get();
+			});
+		}]);
 
 		// Login Controller
 		myApp.controller('LoginController', ['$scope', 'UserService', function( $scope, UserService )
