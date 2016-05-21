@@ -9,7 +9,12 @@
 		myApp.config(function ($routeProvider, $locationProvider) 
 		{
 			$routeProvider.when('/', {
+				redirectTo: '/login'
+			}).when('/login', {
 				templateUrl: 'templates/login.html',
+				controller: 'UserController'
+			}).when('/feed', {
+				templateUrl: 'templates/feed.html',
 				controller: 'UserController'
 			});
 		});
@@ -75,14 +80,30 @@
 		});
 
 		// User Controller
-		myApp.controller('UserController', ['$scope', 'UserService', function( $scope, UserService )
+		myApp.controller('UserController', ['$scope', '$location', 'UserService', function( $scope, $location, UserService )
 		{
 			$scope.user = UserService.Get();
 
-			$scope.$watch(function () { return UserService.Get() }, function (newVal, oldVal) {
-				if (typeof newVal !== 'undefined')
-					$scope.user = UserService.Get();
+			$scope.$watch(function () { return UserService.Get() }, function (newVal, oldVal) 
+			{
+				$scope.user = UserService.Get();
+
+				if (typeof newVal === 'undefined' || typeof newVal.login === 'undefined')
+				{
+					$location.path('/login');
+				}
+				else
+				{
+					$location.path('/feed');
+				}
+
 			});
+
+
+			this.bla = function()
+			{
+				alert($scope.user.login);
+			}
 		}]);
 
 		// Login Controller
@@ -99,7 +120,6 @@
 				}
 				else
 				{
-					alert("ok");
 					$scope.loginForm = {};
 				}
 
@@ -152,9 +172,7 @@
 				}
 				else
 				{
-					alert("ok");
 					$scope.registerForm = {};
-					window.location.href = window.location.href + '/test';
 				}
 
 				// TODO [When joining server:]
