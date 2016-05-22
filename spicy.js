@@ -252,7 +252,9 @@
 					'date': '11-11-1111'
 				}],
 				'likes': 6,
-				'dislikes': 42
+				'dislikes': 42,
+				'userLikes': false,
+				'userDislikes': false
 			}];
 
 			return {
@@ -274,7 +276,9 @@
 							'content': 'Lorem Ipsum.',
 							'comments': [],
 							'likes': 0,
-							'dislikes': 0
+							'dislikes': 0,
+							'userLikes': false,
+							'userDislikes': false
 						};
 					}
 					else
@@ -282,25 +286,48 @@
 						console.log('Invalid operation: can not post if not logged in.');
 					}
 				},
+				// Share
+				'Share' : function(postIdx)
+				{
+
+				},
 				// Like
-				'Like' : function(post)
+				'Like' : function(postIdx)
 				{
-
+					if(viewingPosts[postIdx].userLikes)
+					{
+						viewingPosts[postIdx].userLikes = false;
+						viewingPosts[postIdx].likes--;
+					}
+					else
+					{
+						viewingPosts[postIdx].userLikes = true;
+						viewingPosts[postIdx].likes++;
+						if(viewingPosts[postIdx].userDislikes)
+						{
+							viewingPosts[postIdx].userDislikes = false;
+							viewingPosts[postIdx].dislikes--;
+						}
+					}
 				},
 				// UnLike
-				'UnLike' : function(post)
-				{
-
-				},
-				// UnLike
-				'Dislike' : function(post)
-				{
-
-				},
-				// UnLike
-				'UnDislike' : function(post)
-				{
-
+				'Dislike' : function(postIdx)
+				{						
+					if(viewingPosts[postIdx].userDislikes)
+					{
+						viewingPosts[postIdx].userDislikes = false;
+						viewingPosts[postIdx].dislikes--;
+					}
+					else
+					{
+						viewingPosts[postIdx].userDislikes = true;
+						viewingPosts[postIdx].dislikes++;
+						if(viewingPosts[postIdx].userLikes)
+						{
+							viewingPosts[postIdx].userLikes = false;
+							viewingPosts[postIdx].likes--;
+						}
+					}
 				}
 
 			}
@@ -310,6 +337,16 @@
 		myApp.controller('PostReadController', ['$scope', 'PostsService', function( $scope, PostsService )
 		{
 			$scope.viewingPosts = PostsService.Get();
+
+			this.Like = function(postIdx)
+			{
+				PostsService.Like(postIdx);
+			}
+
+			this.Dislike = function(postIdx)
+			{
+				PostsService.Dislike(postIdx);
+			}
 		}]);
 
 	}
