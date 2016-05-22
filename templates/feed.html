@@ -59,78 +59,64 @@
     </div>
 	
 	
-    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;margin-top:10px; margin-bottom:10px;">
-		
-		<div class="post" >
-			<div class="row">
-				<div class="col-md-2" align="center">
-					<img src="profile-picture.jpg" class="img-thumbnail" width="150" height="150"/> 
-					<h4>data</h4>
-					<div class="row" style="margin-top:150px;">
-						50 | 10
-						<div class="row">
-							<div class="btn-group" style="vertical-align:bottom;">
-								<button type="button" class="btn btn-primary" style="background-color:#14b814;border-color:#808080;">
-									+
-								</button>
-								<button type="button" class="btn btn-primary" style="background-color:#cc3300;border-color:#808080;">
-									-
-								</button>
+    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;margin-top:10px; margin-bottom:10px;" ng-controller="PostReadController as postCtrl">
+    	<div ng-repeat="post in viewingPosts">
+			<div class="post" >
+				<div class="row">
+					<div class="col-md-2" align="center">
+						<img ng-src="{{post.writer.picturePath}}" class="img-thumbnail" width="150" height="150"/> 
+						<h4>{{post.date}}</h4>
+						<div class="row" style="margin-top:150px;">
+							{{post.likes}} | {{post.dislikes}}
+							<div class="row">
+								<div class="btn-group" style="vertical-align:bottom;">
+									<button type="button" class="btn btn-primary" style="background-color:#14b814;border-color:#808080;">
+										+
+									</button>
+									<button type="button" class="btn btn-primary" style="background-color:#cc3300;border-color:#808080;">
+										-
+									</button>
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<div class="col-md-10">
-					<div class="row">
-						<div class="col-md-10">
-							<h3>Nome de Perfil</h3>
+					<div class="col-md-10">
+						<div class="row">
+							<div class="col-md-10">
+								<h3>{{post.writer.profileName}}</h3>
+							</div>
+							<div class="col-md-2" align="right">
+								<button type="button" class="btn btn-default" >Share</button>
+							</div>
 						</div>
-						<div class="col-md-2" align="right">
-							<button type="button" class="btn btn-default" >Share</button>
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<p>{{post.content}}</p>
+							</div>
+							<div class="panel-footer">
+								#tema1
+								#tema2
+							</div>
 						</div>
-					</div>
-					<div class="panel panel-default">
-						<div class="panel-body">
-							<p>Texto do Post</p>
-						</div>
-						<div class="panel-footer">
-							#tema1
-							#tema2
-						</div>
-					</div>
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h4>Comentarios:</h4>
-						</div>
-						<div class="panel-body">
-							<div class="scroll">
-								<div class="post">
-									Nome
-									: 
-									Commentario
-								</div>
-								<div class="post">
-									Nome
-									: 
-									Commentario
-								</div>
-								<div class="post">
-									Nome
-									: 
-									Commentario
-								</div>
-								<div class="post">
-									Nome
-									: 
-									Commentario
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4>Comentarios:</h4>
+							</div>
+							<div class="panel-body">
+								<div class="scroll" ng-repeat="comment in post.comments">
+									<div class="post">
+										{{comment.writer.profileName}}
+										: 
+										{{comment.contentprofileName}}
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+			
 		</div>
-		
 	</div>
 	
 </div>

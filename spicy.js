@@ -61,6 +61,7 @@
 						}
 
 					var newUser = {
+						'id' : 0,
 						'profileName': profileName,
 						'login': login,
 						'password': password,
@@ -75,7 +76,10 @@
 				// Get the currently logged user
 				'Get' : function()
 				{
-					return user;
+					if(typeof user === 'undefined' || typeof user.id === 'undefined')
+						return false;
+					else
+						return user;
 				}
 			};
 		});
@@ -85,35 +89,32 @@
 		{
 			this.ToMyPosts = function()
 			{
-				var user = UserService.Get();
-				if(typeof user === 'undefined' || typeof user.login === 'undefined')
-					console.log('Invalid redirect attempt');
-				else
+				if(UserService.Get())
 					$location.path('/myposts');
+				else
+					console.log('Invalid redirect attempt');
+
 			}
 			this.ToMyGroups = function()
 			{
-				var user = UserService.Get();
-				if(typeof user === 'undefined' || typeof user.login === 'undefined')
-					console.log('Invalid redirect attempt');
-				else
+				if(UserService.Get())
 					$location.path('/groups');
+				else
+					console.log('Invalid redirect attempt');
 			}
 			this.ToMyFeed = function()
 			{
-				var user = UserService.Get();
-				if(typeof user === 'undefined' || typeof user.login === 'undefined')
-					console.log('Invalid redirect attempt');
-				else
+				if(UserService.Get())
 					$location.path('/feed');
+				else
+					console.log('Invalid redirect attempt');
 			}
 			this.ToMyProfile = function()
 			{
-				var user = UserService.Get();
-				if(typeof user === 'undefined' || typeof user.login === 'undefined')
-					console.log('Invalid redirect attempt');
-				else
+				if(UserService.Get())
 					$location.path('/profile');
+				else
+					console.log('Invalid redirect attempt');
 			}
 		}]);
 
@@ -126,7 +127,7 @@
 			{
 				$scope.user = UserService.Get();
 
-				if (typeof newVal === 'undefined' || typeof newVal.login === 'undefined')
+				if (typeof newVal === 'undefined' || typeof newVal.id === 'undefined')
 				{
 					$location.path('/login');
 				}
@@ -222,6 +223,95 @@
 				);*/
 			};
 		}]);
+
+
+
+		///////////
+		// POSTS //
+		///////////
+
+
+		// Post Create/Load Service
+		myApp.factory('PostsService', ['UserService', function(UserService)
+		{
+			var viewingPosts = [{
+				'writer': {
+					'id' : 0,
+					'profileName': 'Andy',
+					'picturePath' : 'profile-picture.jpg'
+				},
+				'date': '11-11-1111',
+				'content': 'Lorem Ipsum.',
+				'comments': [{
+					'writer': {
+						'id' : 0,
+						'profileName': 'Andy',
+						'picturePath' : 'profile-picture.jpg'
+					},
+					'content': 'Lorem Ipsum.',
+					'date': '11-11-1111'
+				}],
+				'likes': 6,
+				'dislikes': 42
+			}];
+
+			return {
+				// Retrieve posts stored in service
+				'Get' : function()
+				{
+					return viewingPosts;
+				},
+				// Create new post
+				'Create' : function()
+				{
+					var user = UserService.Get();
+
+					if(user)
+					{
+						var newPost = {
+							'writer': user,
+							'date': '11-11-1111',
+							'content': 'Lorem Ipsum.',
+							'comments': [],
+							'likes': 0,
+							'dislikes': 0
+						};
+					}
+					else
+					{
+						console.log('Invalid operation: can not post if not logged in.');
+					}
+				},
+				// Like
+				'Like' : function(post)
+				{
+
+				},
+				// UnLike
+				'UnLike' : function(post)
+				{
+
+				},
+				// UnLike
+				'Dislike' : function(post)
+				{
+
+				},
+				// UnLike
+				'UnDislike' : function(post)
+				{
+
+				}
+
+			}
+		}]);
+
+		// LogOut Controller
+		myApp.controller('PostReadController', ['$scope', 'PostsService', function( $scope, PostsService )
+		{
+			$scope.viewingPosts = PostsService.Get();
+		}]);
+
 	}
 )
 (window.angular);
