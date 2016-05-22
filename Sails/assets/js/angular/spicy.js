@@ -18,18 +18,43 @@ myApp.config(function ($routeProvider, $locationProvider)
 });
 
 // User Login/Logout/Register Service
-myApp.factory('UserService', function()
+myApp.factory('UserService', function($http)
 {
-	// TODO [Server side]
-	var userList = [];
-
-
 	var user = {};
 
 	return {
 		// Log in with password
 		'Login' : function(login, password)
 		{
+			$http.post('/user/Authenticate', {
+				'login': login, 
+				'password': password
+			}).then(
+				// Success
+				function(response)
+				{
+					user = response.data;
+
+					if(false)
+					{
+						alert("Wrong login or password.");
+					}
+				},
+				// Error
+				function(response)
+				{
+					alert('Could not authenticate on server.');
+				}
+			);
+/*
+			user = $http.get('/user/Authenticate', login, password);
+			if(typeof user === 'undefined' || typeof user.id === 'undefined')
+			{
+				user = {};
+				return true;
+			}
+			return false;
+/*			OLD
 			for(var i = userList.length -1; i>=0; i--)
 				if(userList[i].login === login)
 				{
@@ -41,6 +66,7 @@ myApp.factory('UserService', function()
 					return true;
 				}
 			return true;
+*/
 		},
 
 		// Logout
@@ -52,23 +78,27 @@ myApp.factory('UserService', function()
 		// Register
 		'Register' : function(profileName, login, password)
 		{
-			for(var i = userList.length -1; i>=0; i--)
-				if(userList[i].login === login)
+			$http.post('/user/Register', {
+				'profileName': profileName, 
+				'login': login, 
+				'password': password
+			}).then(
+				// Success
+				function(response)
 				{
-					return true;
+					user = response.data;
+
+					if(false)
+					{
+						alert("User name already in use.");
+					}
+				},
+				// Error
+				function(response)
+				{
+					alert('Could not register on server.');
 				}
-
-			var newUser = {
-				'id' : 0,
-				'profileName': profileName,
-				'login': login,
-				'password': password,
-				'picturePath' : 'Uploads/profile-picture.jpg'
-			};
-
-			userList.push(newUser);
-			user = newUser;
-			return false;
+			);
 		},
 
 		// Get the currently logged user
@@ -144,48 +174,22 @@ myApp.controller('LoginController', ['$scope', 'UserService', function( $scope, 
 
 	this.Login = function()
 	{
-		if( UserService.Login($scope.loginForm.login, $scope.loginForm.password) )
+		// Check logged in
+		if( UserService.Get() )
 		{
-			$scope.loginForm.password = '';
-			alert("Wrong login or password.");
+			alert("Log out first!");
 		}
+		// Registration
 		else
 		{
+			UserService.Authenticate($scope.registerForm.login, $scope.registerForm.password);
 			$scope.loginForm = {};
 		}
-
-		// TODO [When joining server:]
-	/*	UserService.Login(login, password).then(
-			// Success
-			function(response)
-			{
-
-			},
-			// Error
-			function(response)
-			{
-
-			}
-		);*/
 	};
 
 	this.Logout = function()
 	{
 		UserService.Logout();
-
-		// TODO [When joining server:]
-	/*	UserService.Logout().then(
-			// Success
-			function(response)
-			{
-
-			},
-			// Error
-			function(response)
-			{
-
-			}
-		);*/
 	};
 }]);
 
@@ -196,29 +200,17 @@ myApp.controller('RegisterController', ['$scope', 'UserService', function( $scop
 
 	this.Register = function()
 	{
-		if( UserService.Register($scope.registerForm.profileName, $scope.registerForm.login, $scope.registerForm.password) )
+		// Check logged in
+		if( UserService.Get() )
 		{
-			$scope.registerForm.login = '';
-			alert("Login name already in use.");
+			alert("Log out first!");
 		}
+		// Registration
 		else
 		{
+			UserService.Register($scope.registerForm.profileName, $scope.registerForm.login, $scope.registerForm.password);
 			$scope.registerForm = {};
 		}
-
-		// TODO [When joining server:]
-	/*	UserService.Register(profileName, login, password).then(
-			// Success
-			function(response)
-			{
-
-			},
-			// Error
-			function(response)
-			{
-
-			}
-		);*/
 	};
 }]);
 
