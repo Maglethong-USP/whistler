@@ -1,0 +1,122 @@
+<!-- Grupo:
+    Rafael Gallo
+    Andreas Munte
+    Guilherme Muzzi
+-->
+<!DOCTYPE html>
+
+<div ng-controller="UserController as userCtrl">
+    <div class="panel panel-default" ng-controller="RedirectController as redirect">
+		<div class="panel-body" style="background-color: #00cc99; padding-bottom:2px; padding-top:2px;">
+			<div class="row" style="padding-bottom:2px; padding-top:2px;">
+				<div class="col-md-2">
+					<h1 align="center">Whistler</h1>
+				</div>
+				<div class="col-md-2" align="center">
+					<button type="button" class="btn btn-default" 
+							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyPosts()">
+						<h4>Meus Posts</h4>
+					</button>
+				</div>
+				<div class="col-md-2" align="center">
+					<button type="button" class="btn btn-default"
+							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyGroups()">
+						<h4>Meus Grupos</h4>
+					</button>
+				</div>
+				<div class="col-md-3" align="center">
+					<button type="button" class="btn btn-default"
+							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyFeed()">
+						<h4>Feed de Noticias</h4>
+					</button>
+				</div>
+				<div class="col-md-3" style="background-color: #00cc99;padding-bottom:2px; padding-top:2px; margin-bottom:2px; margin-top:2px;">
+					<div class="panel panel-default" style="border: 0px #00e6ac;background-color: #00e6ac;padding-bottom:2px; padding-top:2px;margin-bottom:2px; margin-top:2px;">
+						<div class="panel-body" style="background-color: #00e6ac; padding-bottom:2px; padding-top:2px;">								
+							<div class="col-md-3">
+								<img ng-src="{{user.picturePath}}" alt="user image" style="width:60px;height:60px;" ng-click="redirect.ToMyProfile()"/>
+							</div>	
+							<div class="col-md-9" ng-controller="LoginController as loginCtrl">
+								<p ng-click="redirect.ToMyProfile()">{{user.profileName}}</p>
+								<p ng-click="loginCtrl.Logout()">Sair</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+	
+    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;">
+		<div class="row" style="margin-bottom:2px;margin-top:2px;">
+			<div class="col-md-1">
+				<button type="button" class="btn btn-default" style="padding-bottom:4px;padding-top:4px">Buscar</button>
+			</div>
+			<div class="col-md-11">
+				<input type="text"  class="form-control" style="padding-bottom:4px;padding-top:4px;"/>
+			</div>
+		</div>
+    </div>
+	
+	
+    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;margin-top:10px; margin-bottom:10px;" ng-controller="PostReadController as postCtrl">
+    	<div ng-repeat="post in viewingPosts">
+			<div class="post" >
+				<div class="row">
+					<div class="col-md-2" align="center">
+						<img ng-src="{{post.writer.picturePath}}" class="img-thumbnail" width="150" height="150"/> 
+						<h4>{{post.date}}</h4>
+						<div class="row" style="margin-top:150px;">
+							{{post.likes}} | {{post.dislikes}}
+							<div class="row">
+								<div class="btn-group" style="vertical-align:bottom;">
+									<button type="button" class="btn btn-primary" style="background-color:#14b814;border-color:#808080;" ng-click="postCtrl.Like($index)">
+										+
+									</button>
+									<button type="button" class="btn btn-primary" style="background-color:#cc3300;border-color:#808080;" ng-click="postCtrl.Dislike($index)">
+										-
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-10">
+						<div class="row">
+							<div class="col-md-10">
+								<h3>{{post.writer.profileName}}</h3>
+							</div>
+							<div class="col-md-2" align="right">
+								<button type="button" class="btn btn-default" >Share</button>
+							</div>
+						</div>
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<p>{{post.content}}</p>
+							</div>
+							<div class="panel-footer">
+								#tema1
+								#tema2
+							</div>
+						</div>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4>Comentarios:</h4>
+							</div>
+							<div class="panel-body">
+								<div class="scroll" ng-repeat="comment in post.comments">
+									<div class="post">
+										{{comment.writer.profileName}}
+										: 
+										{{comment.contentprofileName}}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+	
+</div>
