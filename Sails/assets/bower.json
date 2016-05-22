@@ -1,0 +1,23 @@
+{
+  "name": "whistler",
+  "homepage": "https://github.com/maglethong/whistler",
+  "authors": [
+    "MAglethong Spirr <maglethongspirr@gmail.com>"
+  ],
+  "description": "Twitter-like web application",
+  "main": "",
+  "license": "none",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies":{
+    "angular": "*",
+    "angular-route": "*",
+    "bootstrap": "*",
+    "jquery": "*"
+  }
+}
