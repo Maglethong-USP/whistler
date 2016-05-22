@@ -63,7 +63,8 @@
 					var newUser = {
 						'profileName': profileName,
 						'login': login,
-						'password': password
+						'password': password,
+						'picturePath' : 'profile-picture.jpg'
 					};
 
 					userList.push(newUser);
