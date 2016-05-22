@@ -79,6 +79,43 @@
 			};
 		});
 
+		// Redirect controller
+		myApp.controller('RedirectController', ['$scope', '$location', 'UserService', function( $scope, $location, UserService)
+		{
+			this.ToMyPosts = function()
+			{
+				var user = UserService.Get();
+				if(typeof user === 'undefined' || typeof user.login === 'undefined')
+					console.log('Invalid redirect attempt');
+				else
+					$location.path('/myposts');
+			}
+			this.ToMyGroups = function()
+			{
+				var user = UserService.Get();
+				if(typeof user === 'undefined' || typeof user.login === 'undefined')
+					console.log('Invalid redirect attempt');
+				else
+					$location.path('/groups');
+			}
+			this.ToMyFeed = function()
+			{
+				var user = UserService.Get();
+				if(typeof user === 'undefined' || typeof user.login === 'undefined')
+					console.log('Invalid redirect attempt');
+				else
+					$location.path('/feed');
+			}
+			this.ToMyProfile = function()
+			{
+				var user = UserService.Get();
+				if(typeof user === 'undefined' || typeof user.login === 'undefined')
+					console.log('Invalid redirect attempt');
+				else
+					$location.path('/profile');
+			}
+		}]);
+
 		// User Controller
 		myApp.controller('UserController', ['$scope', '$location', 'UserService', function( $scope, $location, UserService )
 		{
@@ -98,12 +135,6 @@
 				}
 
 			});
-
-
-			this.bla = function()
-			{
-				alert($scope.user.login);
-			}
 		}]);
 
 		// Login Controller

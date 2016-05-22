@@ -5,8 +5,8 @@
 -->
 <!DOCTYPE html>
 
-<div>
-    <div class="panel panel-default">
+<div ng-controller="UserController as userCtrl">
+    <div class="panel panel-default" ng-controller="RedirectController as redirect">
 		<div class="panel-body" style="background-color: #00cc99; padding-bottom:2px; padding-top:2px;">
 			<div class="row" style="padding-bottom:2px; padding-top:2px;">
 				<div class="col-md-2">
@@ -14,19 +14,19 @@
 				</div>
 				<div class="col-md-2" align="center">
 					<button type="button" class="btn btn-default" 
-							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;">
+							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyPosts()">
 						<h4>Meus Posts</h4>
 					</button>
 				</div>
 				<div class="col-md-2" align="center">
 					<button type="button" class="btn btn-default"
-							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;">
+							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyGroups()">
 						<h4>Meus Grupos</h4>
 					</button>
 				</div>
 				<div class="col-md-3" align="center">
 					<button type="button" class="btn btn-default"
-							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;">
+							style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyFeed()">
 						<h4>Feed de Noticias</h4>
 					</button>
 				</div>
@@ -34,11 +34,11 @@
 					<div class="panel panel-default" style="border: 0px #00e6ac;background-color: #00e6ac;padding-bottom:2px; padding-top:2px;margin-bottom:2px; margin-top:2px;">
 						<div class="panel-body" style="background-color: #00e6ac; padding-bottom:2px; padding-top:2px;">								
 							<div class="col-md-3">
-								<img src="profile-picture.jpg" alt="user image" style="width:60px;height:60px;">
+								<img src="profile-picture.jpg" alt="user image" style="width:60px;height:60px;" ng-click="redirect.ToMyProfile()"/>
 							</div>	
-							<div class="col-md-9">
-								<p>Nome do usuario</p>
-								<p>Sair</p>
+							<div class="col-md-9" ng-controller="LoginController as loginCtrl">
+								<p ng-click="redirect.ToMyProfile()">{{user.profileName}}</p>
+								<p ng-click="loginCtrl.Logout()">Sair</p>
 							</div>
 						</div>
 					</div>
@@ -53,7 +53,7 @@
 				<button type="button" class="btn btn-default" style="padding-bottom:4px;padding-top:4px">Buscar</button>
 			</div>
 			<div class="col-md-11">
-				<input type="text"  class="form-control" style="padding-bottom:4px;padding-top:4px;">
+				<input type="text"  class="form-control" style="padding-bottom:4px;padding-top:4px;"/>
 			</div>
 		</div>
     </div>
@@ -64,7 +64,7 @@
 		<div class="post" >
 			<div class="row">
 				<div class="col-md-2" align="center">
-					<img src="profile-picture.jpg" class="img-thumbnail" width="150" height="150"> 
+					<img src="profile-picture.jpg" class="img-thumbnail" width="150" height="150"/> 
 					<h4>data</h4>
 					<div class="row" style="margin-top:150px;">
 						50 | 10
