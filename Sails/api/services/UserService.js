@@ -18,7 +18,6 @@ module.exports = {
 			if(err)
 			{
 				sails.log(err);
-				throw err;
 			}
 
 			if(result.length == 1)
@@ -31,10 +30,10 @@ module.exports = {
 	Register : function(profileName, login, password, callback)
 	{
 		var user = {
-			'id' : 0,
 			'login': login,
 			'password': password,
-			'profileName': profileName
+			'profileName': profileName,
+			'picturePath' : 'Uploads/profile-picture.jpg'
 		};
 
 		User.create(user).exec(function(err, result)
@@ -42,7 +41,6 @@ module.exports = {
 			if(err)
 			{
 				sails.log(err);
-				throw err;
 			}
 
 			callback(result);

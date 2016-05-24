@@ -46,27 +46,6 @@ myApp.factory('UserService', function($http)
 					alert('Could not authenticate on server.');
 				}
 			);
-/*
-			user = $http.get('/user/Authenticate', login, password);
-			if(typeof user === 'undefined' || typeof user.id === 'undefined')
-			{
-				user = {};
-				return true;
-			}
-			return false;
-/*			OLD
-			for(var i = userList.length -1; i>=0; i--)
-				if(userList[i].login === login)
-				{
-					if(userList[i].password === password)
-					{
-						user = userList[i];
-						return false
-					}
-					return true;
-				}
-			return true;
-*/
 		},
 
 		// Logout

@@ -31,6 +31,7 @@ DROP TABLE rankNeg			CASCADE;
 DROP TABLE grupo			CASCADE;
 DROP TABLE membroGrupo		CASCADE;
 DROP TABLE midia			CASCADE;
+DROP TABLE seguir			CASCADE;
 
 /** ========================================
  *					Tabelas
@@ -62,9 +63,11 @@ CREATE TABLE usuario
 	login		VARCHAR(64),
 	senha		VARCHAR(64),
 	nome 		VARCHAR(64),
-	midia_data 	TIMESTAMP,
+	midia_path 	VARCHAR(126),
 	descricao	TEXT,
 	nascimento	TIMESTAMP,
+	"createdAt" timestamp with time zone,
+	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT usuario_pk
 		PRIMARY KEY (id),

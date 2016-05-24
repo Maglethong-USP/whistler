@@ -27,9 +27,9 @@ module.exports = {
 			columnName: 'nome',
 			type: 'string'
 		},
-		midia_date: {
-			columnName: 'midia_data',
-			type: 'datetime'
+		picturePath: {
+			columnName: 'midia_path',
+			type: 'string'
 		},
 		descricao: {
 			columnName: 'descricao',
