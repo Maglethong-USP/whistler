@@ -6,29 +6,39 @@
  */
 
 module.exports = {
-/*
+	connection: 'postgres',
+	tableName: 'usuario',
 	attributes: {
 		id: {
+			columnName: 'id',
+			primaryKey: true,
 			type: 'integer'
 		},
-		login{
+		login: {
+			columnName: 'login',
+			unique: true,
 			type: 'string'
 		},
-		senha{
+		password: {
+			columnName: 'senha',
 			type: 'string'
 		},
-		nome{
+		profileName: {
+			columnName: 'nome',
 			type: 'string'
 		},
-		midia_data{
-			type: 'string'
+		midia_date: {
+			columnName: 'midia_data',
+			type: 'datetime'
 		},
-		descricao{
-			type: 'string'
+		descricao: {
+			columnName: 'descricao',
+			type: 'text'
 		},
-		nascimento{
+		nascimento: {
+			columnName: 'nascimento',
 			type: 'string'
 		}
-	}*/
+	}
 };
 

@@ -8,13 +8,23 @@
 module.exports = {
 	Authenticate : function(login, password, callback)
 	{
-		User.find().exec(function(err, users)
+		var user = {
+			'login': login,
+			'password': password
+		};
+
+		User.find(user).exec(function(err, result)
 		{
 			if(err)
+			{
+				sails.log(err);
 				throw err;
+			}
 
-			callback(users);
-			sails.log(users);
+			if(result.length == 1)
+				callback(result[0]);
+			else
+				callback({});
 		});
 	},
 
@@ -23,17 +33,19 @@ module.exports = {
 		var user = {
 			'id' : 0,
 			'login': login,
-			'senha': password,
-			'nome': profileName
+			'password': password,
+			'profileName': profileName
 		};
 
 		User.create(user).exec(function(err, result)
 		{
 			if(err)
+			{
+				sails.log(err);
 				throw err;
+			}
 
 			callback(result);
-			sails.log(result);
 		});
 	}
 }

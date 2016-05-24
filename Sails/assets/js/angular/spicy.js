@@ -182,7 +182,7 @@ myApp.controller('LoginController', ['$scope', 'UserService', function( $scope, 
 		// Registration
 		else
 		{
-			UserService.Authenticate($scope.registerForm.login, $scope.registerForm.password);
+			UserService.Login($scope.loginForm.login, $scope.loginForm.password);
 			$scope.loginForm = {};
 		}
 	};
