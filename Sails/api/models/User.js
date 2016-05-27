@@ -38,6 +38,10 @@ module.exports = {
 		nascimento: {
 			columnName: 'nascimento',
 			type: 'string'
+		},
+		posts: {
+			collection: 'post',
+			via: 'writer'
 		}
 	}
 };

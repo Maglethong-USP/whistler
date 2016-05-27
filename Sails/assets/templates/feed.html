@@ -6,6 +6,13 @@
 <!DOCTYPE html>
 
 <div ng-controller="UserController as userCtrl">
+
+
+	<div ng-controller="PostCreateController as create">
+		<button type="button" class="btn btn-default" ng-click="create.Create()"> New Test Post </button>
+	</div>
+
+
     <div class="panel panel-default" ng-controller="RedirectController as redirect">
 		<div class="panel-body" style="background-color: #00cc99; padding-bottom:2px; padding-top:2px;">
 			<div class="row" style="padding-bottom:2px; padding-top:2px;">
@@ -59,7 +66,7 @@
     </div>
 	
 	
-    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;margin-top:10px; margin-bottom:10px;" ng-controller="PostReadController as postCtrl">
+    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;margin-top:10px; margin-bottom:10px;" ng-controller="PostDisplayController as postCtrl">
     	<div ng-repeat="post in viewingPosts">
 			<div class="post" >
 				<div class="row">

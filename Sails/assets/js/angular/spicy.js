@@ -18,7 +18,7 @@ myApp.config(function ($routeProvider, $locationProvider)
 });
 
 // User Login/Logout/Register Service
-myApp.factory('UserService', function($http)
+myApp.factory('UserService', ['$http', function($http)
 {
 	var user = {};
 
@@ -89,7 +89,7 @@ myApp.factory('UserService', function($http)
 				return user;
 		}
 	};
-});
+}]);
 
 // Redirect controller
 myApp.controller('RedirectController', ['$scope', '$location', 'UserService', function( $scope, $location, UserService)
@@ -125,12 +125,12 @@ myApp.controller('RedirectController', ['$scope', '$location', 'UserService', fu
 	}
 }]);
 
-// User Controller
-myApp.controller('UserController', ['$scope', '$location', 'UserService', function( $scope, $location, UserService )
+// User Controller -> keeps user in correct template depending on user
+myApp.controller('UserController', ['$scope', '$location', 'UserService', 'PostsService', function( $scope, $location, UserService, PostsService)
 {
 	$scope.user = UserService.Get();
 
-	$scope.$watch(function () { return UserService.Get() }, function (newVal, oldVal) 
+	$scope.$watch(function () { return UserService.Get(); }, function (newVal, oldVal) 
 	{
 		$scope.user = UserService.Get();
 
@@ -141,8 +141,8 @@ myApp.controller('UserController', ['$scope', '$location', 'UserService', functi
 		else
 		{
 			$location.path('/feed');
+			PostsService.LoadFeed();
 		}
-
 	});
 }]);
 
@@ -201,54 +201,77 @@ myApp.controller('RegisterController', ['$scope', 'UserService', function( $scop
 
 
 // Post Create/Load Service
-myApp.factory('PostsService', ['UserService', function(UserService)
+myApp.factory('PostsService', ['UserService', '$http', function(UserService, $http)
 {
-	var viewingPosts = [{
-		'writer': {
-			'id' : 0,
-			'profileName': 'Andy',
-			'picturePath' : 'Uploads/profile-picture.jpg'
-		},
-		'date': '11-11-1111',
-		'content': 'Lorem Ipsum.',
-		'comments': [{
-			'writer': {
-				'id' : 0,
-				'profileName': 'Andy',
-				'picturePath' : 'Uploads/profile-picture.jpg'
-			},
-			'content': 'Lorem Ipsum.',
-			'date': '11-11-1111'
-		}],
-		'likes': 6,
-		'dislikes': 42,
-		'userLikes': false,
-		'userDislikes': false
-	}];
+	var viewingPosts = [];
+	var observerCallbacks = []; // $watch wasn't working properly
+
+	// Notification call
+	var notifyObservers = function(){
+		angular.forEach(observerCallbacks, function(callback){
+			callback();
+		});
+	};
+
 
 	return {
+		// Register observer
+		'RegisterObserverCallback' : function(callback){
+			observerCallbacks.push(callback);
+		},
 		// Retrieve posts stored in service
 		'Get' : function()
 		{
 			return viewingPosts;
 		},
 		// Create new post
-		'Create' : function()
+		'Create' : function(content)
 		{
 			var user = UserService.Get();
 
 			if(user)
 			{
-				var newPost = {
-					'writer': user,
-					'date': '11-11-1111',
-					'content': 'Lorem Ipsum.',
-					'comments': [],
-					'likes': 0,
-					'dislikes': 0,
-					'userLikes': false,
-					'userDislikes': false
-				};
+				$http.post('/post/Create', {
+					'writer': user.id,
+					'content': content
+				}).then(
+					// Success
+					function(response)
+					{
+
+					},
+					// Error
+					function(response)
+					{
+						alert('Could not Create post on server.');
+					}
+				);
+			}
+			else
+			{
+				console.log('Invalid operation: can not post if not logged in.');
+			}
+		},
+		// Load feed posts
+		'LoadFeed' : function()
+		{
+			var user = UserService.Get();
+
+			if(user)
+			{
+				$http.post('/post/GetFeed', {'userid': user.id}).then(
+					// Success
+					function(response)
+					{	
+						viewingPosts = response.data;
+						notifyObservers();
+					},
+					// Error
+					function(response)
+					{
+						alert('Could not load feed posts from server.');
+					}
+				);
 			}
 			else
 			{
@@ -302,10 +325,17 @@ myApp.factory('PostsService', ['UserService', function(UserService)
 	}
 }]);
 
-// LogOut Controller
-myApp.controller('PostReadController', ['$scope', 'PostsService', function( $scope, PostsService )
+// Post Display Controller
+myApp.controller('PostDisplayController', ['$scope', 'PostsService', function( $scope, PostsService )
 {
 	$scope.viewingPosts = PostsService.Get();
+
+	var WatchCallback = function()
+	{
+		$scope.viewingPosts = PostsService.Get();
+	}
+	PostsService.RegisterObserverCallback(WatchCallback);
+
 
 	this.Like = function(postIdx)
 	{
@@ -315,5 +345,16 @@ myApp.controller('PostReadController', ['$scope', 'PostsService', function( $sco
 	this.Dislike = function(postIdx)
 	{
 		PostsService.Dislike(postIdx);
+	}
+}]);
+
+// LogOut Controller
+myApp.controller('PostCreateController', ['$scope', 'PostsService', function( $scope, PostsService )
+{
+	$scope.postForm = { 'content': 'Hahaha!' };
+
+	this.Create = function()
+	{
+		PostsService.Create($scope.postForm.content);
 	}
 }]);

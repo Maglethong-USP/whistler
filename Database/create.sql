@@ -87,6 +87,8 @@ CREATE TABLE post
 	data 		TIMESTAMP,
 	rankPos 	INT DEFAULT 0,
 	rankNeg 	INT DEFAULT 0,
+	"createdAt" timestamp with time zone,
+	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT post_pk
 		PRIMARY KEY (escritor, data),

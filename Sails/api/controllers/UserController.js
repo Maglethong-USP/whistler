@@ -7,7 +7,7 @@
 
 module.exports = {
 
-	// /task/Load
+	// Authenticate user
 	Authenticate : function(req, res)
 	{
 		var user = (req.body) ? req.body : undefined;
@@ -18,7 +18,7 @@ module.exports = {
 		});
 	},
 
-	// /task/Save
+	// Register new User
 	Register : function(req, res)
 	{
 		var user = (req.body) ? req.body : undefined;
@@ -26,6 +26,22 @@ module.exports = {
 		sails.log(user);
 		UserService.Register(user.profileName, user.login, user.password, function(result)
 		{
+			return res.json(result);
+		});
+	},
+
+	// Get a specific user
+	Get : function(req, res)
+	{
+		var userID = (req.body) ? req.body.userID : undefined;
+
+		User.findone(user).exec(function(err, result)
+		{
+			if(err)
+			{
+				sails.log(err);
+			}
+
 			return res.json(result);
 		});
 	}
