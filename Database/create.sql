@@ -111,17 +111,18 @@ CREATE TABLE comentario
 (
 	-- Atributos
 	id 				SERIAL,
-	post_escritor 	INT,
-	post_data 		TIMESTAMP,
+	post 			INT,
 	escritor		INT,
 	conteudo		TEXT,
-	data 			TIMESTAMP,
+	data 			TIMESTAMP WITH TIME ZONE,
+	"createdAt" timestamp with time zone,
+	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT comentario_pk
-		PRIMARY KEY (post_escritor, post_data, escritor, data),
+		PRIMARY KEY (post, escritor, data),
 	CONSTRAINT comentario_fk_post 
-		FOREIGN KEY (post_escritor, post_data)
-		REFERENCES post (escritor, data)
+		FOREIGN KEY (post)
+		REFERENCES post (id)
 		ON DELETE CASCADE,
 	CONSTRAINT comentario_fk_usuario 
 		FOREIGN KEY (escritor)
@@ -237,7 +238,7 @@ CREATE TABLE seguir
 );
 
 /** ==================== Tabela Referencia de Post para Grupo ====================
-	
+	Gerenciada automaticamente
  */
 CREATE TABLE post_ref_grupo
 (
@@ -259,7 +260,7 @@ CREATE TABLE post_ref_grupo
 );
 
 /** ==================== Tabela Referencia de Post para Usuario ====================
-	
+	Gerenciada automaticamente
  */
 CREATE TABLE post_ref_usuario
 (
@@ -280,7 +281,7 @@ CREATE TABLE post_ref_usuario
 );
 
 /** ==================== Tabela Referencia de Post para Tag ====================
-	
+	Gerenciada automaticamente
  */
 CREATE TABLE post_ref_tag
 (
@@ -373,6 +374,8 @@ RETURNS TRIGGER AS $post_refs$
 				DELETE FROM post_ref_grupo WHERE post = OLD.id;
 				DELETE FROM post_ref_usuario WHERE post = OLD.id;
 				DELETE FROM post_ref_tag WHERE post = OLD.id;
+			ELSE
+				RETURN NEW;
 			END IF;
 		END IF;
 
