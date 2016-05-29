@@ -17,12 +17,12 @@
 	- Todos os atributos derivados serão calculados por comandos SELECT após todas as inserções iniciais
 */
 
-INSERT INTO usuario (login, senha, nome, descricao) 
-	VALUES ('Andy', 'qwe', 'Maglethong', 'Um cara legal');
+INSERT INTO usuario (id, login, senha, nome, descricao) 
+	VALUES (0, 'Andy', 'qwe', 'Maglethong', 'Um cara legal');
 
-INSERT INTO usuario (login, senha, nome, descricao) 
-	VALUES ('Yvan', 'qwe', 'Lhama', 'Um cara chato');
+INSERT INTO usuario (id, login, senha, nome, descricao) 
+	VALUES (1, 'Yvan', 'qwe', 'Lhama', 'Um cara chato');
 
 INSERT INTO post (escritor, conteudo) 
-	VALUES (0, 'Pqp... o Yvan é chato heim');
+	VALUES (0, 'Pqp... o Yvan é chato heim @Lhama #chato');
 

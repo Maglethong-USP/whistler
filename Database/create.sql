@@ -31,6 +31,9 @@ DROP TABLE grupo			CASCADE;
 DROP TABLE membroGrupo		CASCADE;
 DROP TABLE midia			CASCADE;
 DROP TABLE seguir			CASCADE;
+DROP TABLE post_ref_grupo	CASCADE;
+DROP TABLE post_ref_usuario	CASCADE;
+DROP TABLE post_ref_tag		CASCADE;
 
 /** ========================================
  *					Tabelas
@@ -126,7 +129,6 @@ CREATE TABLE comentario
 		ON DELETE CASCADE
 );
 
-
 /** ==================== Tabela Rank positivo ====================
 	
  */
@@ -153,7 +155,6 @@ CREATE TABLE rank
 		ON DELETE CASCADE
 );
 
-
 /** ==================== Tabela Grupo ====================
 	
  */
@@ -170,7 +171,6 @@ CREATE TABLE grupo
 		REFERENCES usuario (id)
 		ON DELETE CASCADE
 );
-
 
 /** ==================== Tabela Membro Grupo ====================
 	
@@ -194,7 +194,6 @@ CREATE TABLE membroGrupo
 		ON DELETE CASCADE
 );
 
-
 /** ==================== Tabela Midia ====================
 	
  */
@@ -215,7 +214,6 @@ CREATE TABLE midia
 		REFERENCES usuario (id)
 		ON DELETE CASCADE
 );
-
 
 /** ==================== Tabela Seguir ====================
 	
@@ -238,6 +236,65 @@ CREATE TABLE seguir
 		ON DELETE CASCADE
 );
 
+/** ==================== Tabela Referencia de Post para Grupo ====================
+	
+ */
+CREATE TABLE post_ref_grupo
+(
+	-- Atributos
+	post		INT,
+	grupo_dono	INT,
+	grupo_nome	VARCHAR(64),
+	-- Constraints
+	CONSTRAINT post_ref_grupo_pk
+		PRIMARY KEY (post, grupo_dono, grupo_nome),
+	CONSTRAINT post_ref_grupo_fk_post 
+		FOREIGN KEY (post)
+		REFERENCES post (id)
+		ON DELETE CASCADE,
+	CONSTRAINT post_ref_grupo_fk_grupo 
+		FOREIGN KEY (grupo_dono, grupo_nome)
+		REFERENCES grupo (dono, nome)
+		ON DELETE CASCADE
+);
+
+/** ==================== Tabela Referencia de Post para Usuario ====================
+	
+ */
+CREATE TABLE post_ref_usuario
+(
+	-- Atributos
+	post		INT,
+	usuario		INT,
+	-- Constraints
+	CONSTRAINT post_ref_usuario_pk
+		PRIMARY KEY (post, usuario),
+	CONSTRAINT post_ref_usuario_fk_post 
+		FOREIGN KEY (post)
+		REFERENCES post (id)
+		ON DELETE CASCADE,
+	CONSTRAINT post_ref_usuario_fk_usuario 
+		FOREIGN KEY (usuario)
+		REFERENCES usuario (id)
+		ON DELETE CASCADE
+);
+
+/** ==================== Tabela Referencia de Post para Tag ====================
+	
+ */
+CREATE TABLE post_ref_tag
+(
+	-- Atributos
+	post		INT,
+	tag			VARCHAR(64),
+	-- Constraints
+	CONSTRAINT post_ref_tag_pk
+		PRIMARY KEY (post, tag),
+	CONSTRAINT post_ref_tag_fk_post 
+		FOREIGN KEY (post)
+		REFERENCES post (id)
+		ON DELETE CASCADE
+);
 
 
 /** ========================================
@@ -246,7 +303,8 @@ CREATE TABLE seguir
  */
 
 /** ==================== Contagem de Rank ====================
-
+	Trigger responsavel por manter a coerencia dos atributos derivados
+	renk positivo/negativo de posts.
  */
 CREATE OR REPLACE FUNCTION rank_post() 
 RETURNS TRIGGER AS $rank_post$
@@ -296,6 +354,96 @@ CREATE TRIGGER rank_post BEFORE INSERT OR UPDATE OR DELETE ON rank
 	FOR EACH ROW EXECUTE PROCEDURE rank_post();
 
 /** ==================== Novo Post ====================
+	Insere data do sistema no post novo.
+	Responsavel por criar e manter as referencias corretas dos psots
+	para usuarios/grupos/tags listadas no texto do post.
+ */
+CREATE OR REPLACE FUNCTION post_refs() 
+RETURNS TRIGGER AS $post_refs$
+	DECLARE
+		post 		TEXT;
+		reference 	VARCHAR(64);
+		curPos 		INTEGER;
+		refPosEnd 	INTEGER;
+		tableCheck 	VARCHAR(64);
+	BEGIN
+		IF (TG_OP = 'UPDATE') THEN
+			IF (NEW.conteudo != OLD.conteudo) THEN
+			
+				DELETE FROM post_ref_grupo WHERE post = OLD.id;
+				DELETE FROM post_ref_usuario WHERE post = OLD.id;
+				DELETE FROM post_ref_tag WHERE post = OLD.id;
+			END IF;
+		END IF;
+
+		/* User/Group checking */
+		post = NEW.conteudo;
+		LOOP
+			curPos = POSITION('@' in post);
+
+			IF curPos = 0 THEN
+				EXIT;
+			END IF;
+
+			curPos = curPos+1;
+
+			post = SUBSTRING(post FROM curPos);
+			refPosEnd = POSITION(' ' in post);
+			IF refPosEnd > 0 THEN
+				reference = SUBSTRING(post FROM 1 FOR refPosEnd -1);
+				post = SUBSTRING(post FROM refPosEnd);
+			ELSE
+				reference = post;
+			END IF;
+
+			SELECT nome FROM grupo WHERE dono = NEW.escritor INTO tableCheck;
+			IF (tableCheck IS NULL) THEN /* TODO [Test] */
+				SELECT id FROM usuario WHERE nome = reference INTO curPos;
+				RAISE NOTICE 'Relacionando post #% com usuario "%(%)"', NEW.id, reference, curPos; /* TODO [debug] */
+				INSERT INTO post_ref_usuario (post, usuario) 
+					VALUES (NEW.id, curPos);
+			ELSE /* TODO [Test] */
+				RAISE NOTICE 'Relacionando post #% com grupo "%(%)"', NEW.id, reference, NEW.escritor; /* TODO [debug] */
+				INSERT INTO post_ref_grupo (post, grupo_dono, grupo_nome) 
+					VALUES (NEW.id, NEW.escritor, reference);
+			END IF;
+
+		END LOOP;
+
+		/* Tag checking */
+		post = NEW.conteudo;
+		LOOP
+			curPos = POSITION('#' in post);
+
+			IF curPos = 0 THEN
+				EXIT;
+			END IF;
+
+			curPos = curPos+1;
+
+			post = SUBSTRING(post FROM curPos);
+			refPosEnd = POSITION(' ' in post);
+			IF refPosEnd > 0 THEN
+				reference = SUBSTRING(post FROM 1 FOR refPosEnd);
+				post = SUBSTRING(post FROM refPosEnd);
+			ELSE
+				reference = post;
+			END IF;
+
+			RAISE NOTICE 'Relacionando post #% com tag "%"', NEW.id, reference; /* TODO [debug] */
+
+			INSERT INTO post_ref_tag (post, tag) /* TODO [Test] */
+				VALUES (NEW.id, reference);
+		END LOOP;
+
+		RETURN NEW;
+	END;
+$post_refs$ LANGUAGE plpgsql;
+
+CREATE TRIGGER post_refs AFTER INSERT OR UPDATE ON post
+	FOR EACH ROW EXECUTE PROCEDURE post_refs();
+
+/** ==================== Novo Post ====================
 	Insere data do sistema no post novo
  */
 
@@ -309,7 +457,7 @@ RETURNS TRIGGER AS $post_data$
 	END;
 $post_data$ LANGUAGE plpgsql;
 
-CREATE TRIGGER user_mensagem BEFORE INSERT ON post
+CREATE TRIGGER post_data BEFORE INSERT ON post
 	FOR EACH ROW EXECUTE PROCEDURE post_data();
 
 /** ==================== Novo Comentario ====================
