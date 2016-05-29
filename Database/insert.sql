@@ -41,6 +41,9 @@ INSERT INTO post (id, escritor, conteudo)
 INSERT INTO post (id, escritor, conteudo) 
 	VALUES (3, 0, 'O @Andy eh um cara legal #legal');
 
+INSERT INTO post (id, escritor, conteudo) 
+	VALUES (4, 2, 'Oi mundo! #HelloWorld');
+
 
 /* Comment */
 INSERT INTO comentario (id, post, escritor, conteudo) 
@@ -89,9 +92,12 @@ INSERT INTO membroGrupo (dono, nome, membro)
 /* Midia */
 
 
-/* Midia */
+/* Seguir */
 INSERT INTO seguir (seguidor, seguido) 
 	VALUES (0, 1);
+
+INSERT INTO seguir (seguidor, seguido) 
+	VALUES (1, 2);
 
 
 
