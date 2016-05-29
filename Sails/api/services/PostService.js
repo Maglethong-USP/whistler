@@ -13,7 +13,29 @@ module.exports = {
 		//	'writer': userid,
 		};
 
-		Post.query('SELECT usuario.id as "writerID", usuario.nome as "writerProfileName", usuario.midia_path as "writerPicturePath", post.conteudo as "content", post.data as "date", post.rankpos as "likes", post.rankneg as "dislikes" FROM post JOIN usuario ON post.escritor = usuario.id', function(err, result){ // TODO [Where para apenas mostrar posts relevantes para este user]
+/*
+		SELECT	usuario.id as "writerID", 
+				usuario.nome as "writerProfileName", 
+				usuario.midia_path as "writerPicturePath", 
+
+				post.id as "id", 
+				post.conteudo as "content", 
+				post.data as "date", 
+				post.rankpos as "likes", 
+				post.rankneg as "dislikes",
+
+				rank.tipo as "userRank"
+
+		FROM post 
+		JOIN usuario 
+			ON post.escritor = usuario.id
+		LEFT JOIN rank
+			ON rank.post = post.id
+			AND rank.avaliador = usuario.id
+*/
+
+
+		Post.query('SELECT usuario.id as "writerID", usuario.nome as "writerProfileName", usuario.midia_path as "writerPicturePath", post.id as "id", post.conteudo as "content", post.data as "date", post.rankpos as "likes", post.rankneg as "dislikes", rank.tipo as "userRank" FROM post JOIN usuario ON post.escritor = usuario.id LEFT JOIN rank ON rank.post = post.id AND rank.avaliador = usuario.id', function(err, result){ // TODO [Where para apenas mostrar posts relevantes para este user]
 
 			if(err)
 			{
@@ -30,10 +52,13 @@ module.exports = {
 						'profileName': rows[i].writerProfileName,
 						'picturePath': rows[i].writerPicturePath
 					},
+					'id': rows[i].id,
 					'content': rows[i].content,
 					'date': rows[i].date,
 					'likes': rows[i].likes,
-					'dislikes': rows[i].dislikes
+					'dislikes': rows[i].dislikes,
+					'userLikes': rows[i].userRank == 'P',
+					'userDislikes': rows[i].userRank == 'N'
 				});
 			}
 

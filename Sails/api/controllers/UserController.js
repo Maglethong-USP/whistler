@@ -23,7 +23,7 @@ module.exports = {
 	{
 		var user = (req.body) ? req.body : undefined;
 
-		sails.log(user);
+//		sails.log(user);
 		UserService.Register(user.profileName, user.login, user.password, function(result)
 		{
 			return res.json(result);

@@ -286,39 +286,126 @@ myApp.factory('PostsService', ['UserService', '$http', function(UserService, $ht
 		// Like
 		'Like' : function(postIdx)
 		{
+			var user = UserService.Get();
+			var rankInfo = {
+				'post': viewingPosts[postIdx].id,
+				'ranker': user.id
+			}
+
+			// User already likes
 			if(viewingPosts[postIdx].userLikes)
 			{
-				viewingPosts[postIdx].userLikes = false;
-				viewingPosts[postIdx].likes--;
+				console.log(rankInfo);
+				$http.post('/rank/UnUpvote', rankInfo).then(
+					// Success
+					function(response)
+					{
+						if(response.data !== '')
+						{
+							viewingPosts[postIdx].userLikes = false;
+							viewingPosts[postIdx].likes--;
+						}
+					},
+					// Error
+					function(response){ alert('Could UnUpvote post on server.'); }
+				);
 			}
+			// User does not already like
 			else
 			{
-				viewingPosts[postIdx].userLikes = true;
-				viewingPosts[postIdx].likes++;
+				// User dislikes
 				if(viewingPosts[postIdx].userDislikes)
 				{
-					viewingPosts[postIdx].userDislikes = false;
-					viewingPosts[postIdx].dislikes--;
+					$http.post('/rank/UnDownvote', rankInfo).then(
+						// Success
+						function(response)
+						{
+							if(response.data !== '')
+							{
+								viewingPosts[postIdx].userDislikes = false;
+								viewingPosts[postIdx].dislikes--;
+							}
+						},
+						// Error
+						function(response){ alert('Could UnDownvote post on server.'); }
+					);
 				}
+
+				$http.post('/rank/Upvote', rankInfo).then(
+					// Success
+					function(response)
+					{
+						if(response.data !== '')
+						{
+							viewingPosts[postIdx].userLikes = true;
+							viewingPosts[postIdx].likes++;
+						}
+					},
+					// Error
+					function(response){ alert('Could Upvote post on server.'); }
+				);
 			}
 		},
 		// UnLike
 		'Dislike' : function(postIdx)
-		{						
+		{
+			var user = UserService.Get();
+			var rankInfo = {
+				'post': viewingPosts[postIdx].id,
+				'ranker': user.id
+			}
+
+			// User already dislikes
 			if(viewingPosts[postIdx].userDislikes)
 			{
-				viewingPosts[postIdx].userDislikes = false;
-				viewingPosts[postIdx].dislikes--;
+				$http.post('/rank/UnDownvote', rankInfo).then(
+					// Success
+					function(response)
+					{
+						if(response.data !== '')
+						{
+							viewingPosts[postIdx].userDislikes = false;
+							viewingPosts[postIdx].dislikes--;
+						}
+					},
+					// Error
+					function(response){ alert('Could UnUpvote post on server.'); }
+				);
 			}
+			// User does not already like
 			else
 			{
-				viewingPosts[postIdx].userDislikes = true;
-				viewingPosts[postIdx].dislikes++;
+				// User likes
 				if(viewingPosts[postIdx].userLikes)
 				{
-					viewingPosts[postIdx].userLikes = false;
-					viewingPosts[postIdx].likes--;
+					$http.post('/rank/UnUpvote', rankInfo).then(
+						// Success
+						function(response)
+						{
+							if(response.data !== '')
+							{
+								viewingPosts[postIdx].userLikes = false;
+								viewingPosts[postIdx].likes--;
+							}
+						},
+						// Error
+						function(response){ alert('Could UnDownvote post on server.'); }
+					);
 				}
+
+				$http.post('/rank/Downvote', rankInfo).then(
+					// Success
+					function(response)
+					{
+						if(response.data !== '')
+						{
+							viewingPosts[postIdx].userDislikes = true;
+							viewingPosts[postIdx].dislikes++;
+						}
+					},
+					// Error
+					function(response){ alert('Could Upvote post on server.'); }
+				);
 			}
 		}
 

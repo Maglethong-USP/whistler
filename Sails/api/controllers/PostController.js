@@ -14,7 +14,7 @@ module.exports = {
 
 		PostService.GetFeed(userid, 0, 99999, function(result)
 		{
-			sails.log(result);
+//			sails.log(result);
 			return res.json(result);
 		});
 	},
@@ -24,14 +24,14 @@ module.exports = {
 	{
 		var post = (req.body) ? req.body : undefined;
 
-		sails.log(post);
+//		sails.log(post);
 		PostService.Create(post.writer, post.content, function(result)
 		{
 			return res.json(result);
 		});
 	},
 
-
+	// 
 	GetWriter : function(post, callback)
 	{
 		User.findOne(post.writer).exec(function(err, result)

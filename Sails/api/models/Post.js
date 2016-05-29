@@ -9,20 +9,26 @@ module.exports = {
 	connection: 'postgres',
 	tableName: 'post',
 	attributes: {
-		writer: {
+		id: {
+			autoIncrement: true,
+			columnName: 'id',
 			primaryKey: true,
+			type: 'integer'
+		},
+		writer: {
+			unique: true,
 			model: 'user',
 			columnName: 'escritor',
 			type: 'integer',
 		},
 		content: {
+			unique: true,
 			columnName: 'conteudo',
-			primaryKey: true,
 			type: 'text'
 		},
 		date: {
 			columnName: 'data',
-			type: 'date'
+			type: 'datetime'
 		},
 		likes: {
 			columnName: 'rankpos',

@@ -26,8 +26,7 @@
 DROP TABLE usuario			CASCADE;
 DROP TABLE post				CASCADE;
 DROP TABLE comentario		CASCADE;
-DROP TABLE rankPos			CASCADE;
-DROP TABLE rankNeg			CASCADE;
+DROP TABLE rank				CASCADE;
 DROP TABLE grupo			CASCADE;
 DROP TABLE membroGrupo		CASCADE;
 DROP TABLE midia			CASCADE;
@@ -82,16 +81,19 @@ CREATE TABLE usuario
 CREATE TABLE post
 (
 	-- Atributos
+	id 			SERIAL,
 	escritor	INT,
 	conteudo	TEXT,
-	data 		TIMESTAMP,
+	data 		TIMESTAMP WITH TIME ZONE,
 	rankPos 	INT DEFAULT 0,
 	rankNeg 	INT DEFAULT 0,
 	"createdAt" timestamp with time zone,
 	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT post_pk
-		PRIMARY KEY (escritor, data),
+		PRIMARY KEY (id),
+	CONSTRAINT post_sk
+		UNIQUE (escritor, data),
 	CONSTRAINT post_fk_usuario 
 		FOREIGN KEY (escritor)
 		REFERENCES usuario (id)
@@ -105,6 +107,7 @@ CREATE TABLE post
 CREATE TABLE comentario
 (
 	-- Atributos
+	id 				SERIAL,
 	post_escritor 	INT,
 	post_data 		TIMESTAMP,
 	escritor		INT,
@@ -127,43 +130,24 @@ CREATE TABLE comentario
 /** ==================== Tabela Rank positivo ====================
 	
  */
-CREATE TABLE rankPos
+CREATE TABLE rank
 (
 	-- Atributos
-	post_escritor 	INT,
-	post_data 		TIMESTAMP,
+	post 			INT,
 	avaliador		INT,
+	tipo 			CHAR,
+	"createdAt" timestamp with time zone,
+	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT rankPos_pk
-		PRIMARY KEY (post_escritor, post_data, avaliador),
+		PRIMARY KEY (post, avaliador),
+	CONSTRAINT rank_tipo 
+		CHECK ( UPPER(tipo) IN ( 'P', 'N' ) ),
 	CONSTRAINT rankPos_fk_post 
-		FOREIGN KEY (post_escritor, post_data)
-		REFERENCES post (escritor, data)
+		FOREIGN KEY (post)
+		REFERENCES post (id)
 		ON DELETE CASCADE,
 	CONSTRAINT rankPos_fk_usuario 
-		FOREIGN KEY (avaliador)
-		REFERENCES usuario (id)
-		ON DELETE CASCADE
-);
-
-
-/** ==================== Tabela Rank Negativo ====================
-	
- */
-CREATE TABLE rankNeg
-(
-	-- Atributos
-	post_escritor 	INT,
-	post_data 		TIMESTAMP,
-	avaliador		INT,
-	-- Constraints
-	CONSTRAINT rankNeg_pk
-		PRIMARY KEY (post_escritor, post_data, avaliador),
-	CONSTRAINT rankNeg_fk_post 
-		FOREIGN KEY (post_escritor, post_data)
-		REFERENCES post (escritor, data)
-		ON DELETE CASCADE,
-	CONSTRAINT rankNeg_fk_usuario 
 		FOREIGN KEY (avaliador)
 		REFERENCES usuario (id)
 		ON DELETE CASCADE
@@ -261,79 +245,55 @@ CREATE TABLE seguir
  * =========================================
  */
 
-/** ==================== Contagem de Rank Positivo ====================
+/** ==================== Contagem de Rank ====================
 
  */
-CREATE OR REPLACE FUNCTION rankPos_post() 
-RETURNS TRIGGER AS $rankPos_post$
+CREATE OR REPLACE FUNCTION rank_post() 
+RETURNS TRIGGER AS $rank_post$
 	BEGIN
 		IF (TG_OP = 'DELETE') THEN
-			UPDATE post SET rankPos = rankPos -1
-			WHERE post.escritor = OLD.post_escritor
-			AND post.data = OLD.post_data;
-			RETURN OLD;
-		ELSIF (TG_OP = 'UPDATE') THEN
-			IF (OLD.id = NEW.id) THEN
-
-			ELSE
+			IF (OLD.tipo = 'P') THEN
 				UPDATE post SET rankPos = rankPos -1
-				WHERE post.escritor = OLD.post_escritor
-				AND post.data = OLD.post_data;
-
-				UPDATE post SET rankPos = rankPos +1
-				WHERE post.escritor = NEW.post_escritor
-				AND post.data = NEW.post_data;
-				RETURN NEW;
-			END IF;
-		ELSIF (TG_OP = 'INSERT') THEN
-			UPDATE post SET rankPos = rankPos +1
-			WHERE post.escritor = NEW.post_escritor
-			AND post.data = NEW.post_data;
-			RETURN NEW;
-		END IF;
-
-	END;
-$rankPos_post$ LANGUAGE plpgsql;
-
-CREATE TRIGGER rankPos_post BEFORE INSERT OR UPDATE OR DELETE ON rankPos
-	FOR EACH ROW EXECUTE PROCEDURE rankPos_post();
-
-/** ==================== Contagem de Rank Negativo ====================
-
- */
-CREATE OR REPLACE FUNCTION rankNeg_post() 
-RETURNS TRIGGER AS $rankNeg_post$
-	BEGIN
-		IF (TG_OP = 'DELETE') THEN
-			UPDATE post SET rankNeg = rankNeg -1
-			WHERE post.escritor = OLD.post_escritor
-			AND post.data = OLD.post_data;
-			RETURN OLD;
-		ELSIF (TG_OP = 'UPDATE') THEN
-			IF (OLD.id = NEW.id) THEN
-			
+				WHERE post.id = OLD.post;
+				RETURN OLD;
 			ELSE
 				UPDATE post SET rankNeg = rankNeg -1
-				WHERE post.escritor = OLD.post_escritor
-				AND post.data = OLD.post_data;
-
-				UPDATE post SET rankNeg = rankNeg +1
-				WHERE post.escritor = NEW.post_escritor
-				AND post.data = NEW.post_data;
-				RETURN NEW;
+				WHERE post.id = OLD.post;
+				RETURN OLD;
 			END IF;
+		ELSIF (TG_OP = 'UPDATE') THEN
+			IF (OLD.tipo = 'P') THEN
+				UPDATE post SET rankPos = rankPos -1
+				WHERE post.id = OLD.post;
+			ELSE
+				UPDATE post SET rankNeg = rankNeg -1
+				WHERE post.id = OLD.post;
+			END IF;
+
+			IF (NEW.tipo = 'P') THEN
+				UPDATE post SET rankPos = rankPos +1
+				WHERE post.id = NEW.post;
+			ELSE
+				UPDATE post SET rankNeg = rankNeg +1
+				WHERE post.id = NEW.post;
+			END IF;
+			RETURN NEW;
 		ELSIF (TG_OP = 'INSERT') THEN
-			UPDATE post SET rankNeg = rankNeg +1
-			WHERE post.escritor = NEW.post_escritor
-			AND post.data = NEW.post_data;
+			IF (NEW.tipo = 'P') THEN
+				UPDATE post SET rankPos = rankPos +1
+				WHERE post.id = NEW.post;
+			ELSE
+				UPDATE post SET rankNeg = rankNeg +1
+				WHERE post.id = NEW.post;
+			END IF;
 			RETURN NEW;
 		END IF;
 
 	END;
-$rankNeg_post$ LANGUAGE plpgsql;
+$rank_post$ LANGUAGE plpgsql;
 
-CREATE TRIGGER rankNeg_post BEFORE INSERT OR UPDATE OR DELETE ON rankNeg
-	FOR EACH ROW EXECUTE PROCEDURE rankNeg_post();
+CREATE TRIGGER rank_post BEFORE INSERT OR UPDATE OR DELETE ON rank
+	FOR EACH ROW EXECUTE PROCEDURE rank_post();
 
 /** ==================== Novo Post ====================
 	Insere data do sistema no post novo
