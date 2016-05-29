@@ -50,7 +50,7 @@ module.exports = {
 					'writer': {
 						'id': rows[i].writerID,
 						'profileName': rows[i].writerProfileName,
-						'picturePath': rows[i].writerPicturePath
+						'picturePath': rows[i].writerPicturePath ? rows[i].writerPicturePath : 'Uploads/profile-picture.jpg'
 					},
 					'id': rows[i].id,
 					'content': rows[i].content,

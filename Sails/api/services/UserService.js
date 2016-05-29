@@ -21,7 +21,12 @@ module.exports = {
 			}
 
 			if(result.length == 1)
-				callback(result[0]);
+			{
+				UserService.CheckPictureExists(result[0].picturePath, function(path){
+					result[0].picturePath = path;
+					callback(result[0]);
+				});
+			}
 			else
 				callback({});
 		});
@@ -32,8 +37,7 @@ module.exports = {
 		var user = {
 			'login': login,
 			'password': password,
-			'profileName': profileName,
-			'picturePath' : 'Uploads/profile-picture.jpg'
+			'profileName': profileName
 		};
 
 		User.create(user).exec(function(err, result)
@@ -45,5 +49,26 @@ module.exports = {
 
 			callback(result);
 		});
+	},
+
+
+	CheckPictureExists : function(path, callback)
+	{
+		if( !path )
+		{
+			callback('Uploads/profile-picture.jpg');
+		}
+		else
+		{
+			fs = require('fs');
+
+			fs.exists(path, function(exists)
+			{
+				if(!exists)
+					callback('Uploads/profile-picture.jpg');
+				else
+					callback(path);
+			});
+		}
 	}
 }
