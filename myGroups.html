@@ -34,6 +34,17 @@
 			overflow-y:auto;
 			height:120px;
 		}
+		
+		textarea{ 
+		  width: 1100px; 
+		  min-width:1100px; 
+		  max-width:1100px; 
+
+		  height:150px; 
+		  min-height:150px;  
+		  max-height:150px;
+		}
+		
 	</style>
 	
 	<body>
@@ -81,87 +92,87 @@
 		
 		
 	    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;">
-			<div class="row">
-				<div class="col-md-2" align="center">
-					<img src="profile-picture.jpg" class="img-thumbnail" width="150" height="150">
-					<button type="button" class="btn btn-primary" style="margin:5px;">Seguir</button>
-					<h5 style="margin:5px;">Seguindo</h5>
-				</div>
-				<div class="col-md-10" >
-					<h3>Nome de Perfil</h3>
-					<div class="row">
-						<div class="col-md-6" >
-							<h4>Nome de Usuário</h4>
-						</div>
-						<div class="col-md-6" >
-							<h4>Data de Nascimento</h4>
-						</div>
+			
+			<h2>Meus Grupos</h2>
+			
+			<button type="button" class="btn btn-primary" style="margin-top: 5px;">Novo Grupo</button>
+			
+			<div class="post" >
+				<div class="row" style="margin-top: 5px;">
+					<div class="col-md-9">
+						<form class="form-horizontal" role="form" >
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Nome do Grupo</label>
+								<div class="col-sm-10">
+									<input class="form-control" id="focusedInput" type="text" value={{group.name}}>
+								</div>
+							</div>
+						</form>
 					</div>
-					<p>Descrição</p>
+					<div class="col-md-3">
+						<button type="button" class="btn btn-primary" align="left" >Salvar alterações</button>
+					</div>
+				</div>
+				<div class="row" style="margin: 5px;">
+					<div class="col-md-10">
+						<label for="sel">Integrantes:</label>
+						<select multiple class="form-control" id="sel" style="height: 125px;">
+							<option>Pessoa 1</option>
+							<option>Pessoa 2</option>
+							<option>Pessoa 3</option>
+							<option>Pessoa 4</option>
+							<option>Pessoa 5</option>
+							<option>Pessoa 6</option>
+							<option>Pessoa 7</option>
+						</select>
+					</div>
+					<div class="col-md-2" style="padding: 20px;">
+						<button type="button" class="btn btn-primary" style="margin: 5px;">Adicionar Pessoa</button>
+						<button type="button" class="btn btn-primary" style="margin: 5px;">Remover Pessoas</button>
+						<button type="button" class="btn btn-primary" style="margin: 5px;background-color:#cc3300;border-color:#992600;">Excluir Grupo</button>
+					</div>
 				</div>
 			</div>
+			
+			<div class="post" >
+				<div class="row" style="margin-top: 5px;">
+					<div class="col-md-9">
+						<form class="form-horizontal" role="form" >
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Nome do Grupo</label>
+								<div class="col-sm-10">
+									<input class="form-control" id="focusedInput" type="text" value={{group.name}}>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div class="col-md-3">
+						<button type="button" class="btn btn-primary" align="left" >Salvar alterações</button>
+					</div>
+				</div>
+				<div class="row" style="margin: 5px;">
+					<div class="col-md-10">
+						<label for="sel">Integrantes:</label>
+						<select multiple class="form-control" id="sel" style="height: 125px;">
+							<option>Pessoa 1</option>
+							<option>Pessoa 2</option>
+							<option>Pessoa 3</option>
+							<option>Pessoa 4</option>
+							<option>Pessoa 5</option>
+							<option>Pessoa 6</option>
+							<option>Pessoa 7</option>
+						</select>
+					</div>
+					<div class="col-md-2" style="padding: 20px;">
+						<button type="button" class="btn btn-primary" style="margin: 5px;">Adicionar Pessoa</button>
+						<button type="button" class="btn btn-primary" style="margin: 5px;">Remover Pessoas</button>
+						<button type="button" class="btn btn-primary" style="margin: 5px;background-color:#cc3300;border-color:#992600;">Excluir Grupo</button>
+					</div>
+				</div>
+			</div>
+			
 		</div>
 		
-	    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;">
-			
-			<div ng-repeat="post in viewingPosts">
-				<div class="post" >
-					<div class="row">
-						<div class="col-md-2" align="center">
-							<img ng-src="{{post.writer.picturePath}}" class="img-thumbnail" width="150" height="150"/> 
-							<h4>{{post.date}}</h4>
-							<div class="row" style="margin-top:150px;">
-								{{post.likes}} | {{post.dislikes}}
-								<div class="row">
-									<div class="btn-group" style="vertical-align:bottom;">
-										<button type="button" class="btn btn-primary" style="background-color:#14b814;border-color:#808080;" ng-click="postCtrl.Like($index)">
-											+
-										</button>
-										<button type="button" class="btn btn-primary" style="background-color:#cc3300;border-color:#808080;" ng-click="postCtrl.Dislike($index)">
-											-
-										</button>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-10">
-							<div class="row">
-								<div class="col-md-10">
-									<h3>{{post.writer.profileName}}</h3>
-								</div>
-								<div class="col-md-2" align="right">
-									<button type="button" class="btn btn-default" >Share</button>
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-body">
-									<p>{{post.content}}</p>
-								</div>
-								<div class="panel-footer">
-									#tema1
-									#tema2
-								</div>
-							</div>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4>Comentarios:</h4>
-								</div>
-								<div class="panel-body">
-									<div class="scroll" ng-repeat="comment in post.comments">
-										<div class="post">
-											{{comment.writer.profileName}}
-											: 
-											{{comment.contentprofileName}}
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			
-		</div>
 		
 	</body>
 </html>
