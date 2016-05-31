@@ -547,8 +547,7 @@ CREATE OR REPLACE FUNCTION feed(userid INTEGER)
 	RETURNS TABLE (	writerID INTEGER, writerProfileName VARCHAR(64), writerPicturePath VARCHAR(126), 
 					id INTEGER, content TEXT, date TIMESTAMP WITH TIME ZONE, likes INTEGER, dislikes INTEGER,
 					comments INTEGER, userRank CHAR)
-AS
-$body$
+AS $body$
 	SELECT	usuario.id as "writerID", 
 			usuario.nome as "writerProfileName", 
 			usuario.midia_path as "writerPicturePath", 
@@ -636,60 +635,188 @@ $body$
 		usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
 		post.data, post.rankpos, post.rankneg, rank.tipo
 	ORDER BY "date" DESC;
-$body$
-language sql;
+$body$ LANGUAGE sql;
 
 /** ==================== Busca ====================
 	Realiza uma busca customizada de um usuario
 
-	Parametro:
+	Parametros:
 	- ID do usuario a buscar
-	- string contedo a busca a fazer
+	- string contedo a busca a fazer conforme especificacao
  */
 CREATE OR REPLACE FUNCTION search(userid INTEGER, query TEXT)
 	RETURNS TABLE (	writerID INTEGER, writerProfileName VARCHAR(64), writerPicturePath VARCHAR(126), 
 					id INTEGER, content TEXT, date TIMESTAMP WITH TIME ZONE, likes INTEGER, dislikes INTEGER,
 					comments INTEGER, userRank CHAR)
-AS
-$body$
-	SELECT	usuario.id as "writerID", 
-			usuario.nome as "writerProfileName", 
-			usuario.midia_path as "writerPicturePath", 
+AS $body$
+	DECLARE
+		input 		TEXT[];
+		length		INTEGER;
+		pos 		INTEGER;
 
-			post.id as "id", 
-			post.conteudo as "content", 
-			post.data as "date", 
-			post.rankpos as "likes", 
-			post.rankneg as "dislikes",
-			post.comentarios as "comments",
+		users 		TEXT[];
+		tags 		TEXT[];
 
-			rank.tipo as "userRank"
-	FROM post 
-	JOIN usuario 
-		ON post.escritor = usuario.id
-	LEFT JOIN rank /* We want the current user's ranking of this post */
-		ON rank.post = post.id
-		AND rank.avaliador = $1
-	WHERE
-		post.id IN 
-		(
-			/* Posts referring to this user */
-			SELECT post FROM post_ref_usuario
-			WHERE usuario = $1
-			UNION
+		usecase 	INTEGER;
+	BEGIN
+		/* Split users from tags */
+		input = STRING_TO_ARRAY($2, ' ');
+		length = ARRAY_LENGTH(input, 1);
+		pos = 0;
 
-			/* Posts referring to a group with this user */
-			SELECT post FROM post_ref_grupo
-			JOIN membroGrupo 
-				ON membroGrupo.dono = post_ref_grupo.grupo_dono
-				AND membroGrupo.nome = post_ref_grupo.grupo_nome
-			WHERE membroGrupo.membro = $1
-		)
+		LOOP
+			pos = pos +1;
+			IF pos > length THEN
+				EXIT;
+			END IF;
 
-	/* Group and order results */
-	GROUP BY
-		usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
-		post.data, post.rankpos, post.rankneg, rank.tipo
-	ORDER BY "date" DESC;
-$body$
-language sql;
+			/* To short to be something */
+			IF LENGTH(input[pos]) < 2 THEN
+
+			/* Is user */
+			ELSEIF LEFT(input[pos], 1) = '@' THEN
+				users = ARRAY_APPEND(users, SUBSTRING(input[pos] FROM 2));
+			/* Is tag */
+			ELSEIF LEFT(input[pos], 1) = '#' THEN
+				tags = ARRAY_APPEND(tags, SUBSTRING(input[pos] FROM 2));
+			/* Is nothing */
+			ELSE
+				RAISE NOTICE 'Weird query: containing non user/tag element "%"', input[pos]; /* TODO [raise exception] */
+			END IF;
+		END LOOP;
+
+		/* Figuring what usecase it is [No users/No Tags/Have both] */
+		usecase = 0;
+		IF ARRAY_LENGTH(users, 1) > 0 THEN
+			usecase = usecase +1;
+		END IF;
+		IF ARRAY_LENGTH(tags, 1) > 0 THEN
+			usecase = usecase +2;
+		END IF;
+
+		RAISE NOTICE 'case "%"', usecase; /* TODO [Debug] */
+
+		/* Tags array is empty */
+		IF usecase = 1 THEN
+			RETURN QUERY SELECT	usuario.id as "writerID", 
+					usuario.nome as "writerProfileName", 
+					usuario.midia_path as "writerPicturePath", 
+
+					post.id as "id", 
+					post.conteudo as "content", 
+					post.data as "date", 
+					post.rankpos as "likes", 
+					post.rankneg as "dislikes",
+					post.comentarios as "comments",
+
+					rank.tipo as "userRank"
+			FROM post 
+			JOIN usuario 
+				ON post.escritor = usuario.id
+			LEFT JOIN rank /* We want the current user's ranking of this post */
+				ON rank.post = post.id
+				AND rank.avaliador = $1
+			WHERE
+				/* User name is in users list */
+				usuario.nome = ANY (users)
+				/* User is in a group in users list [group of current user] */
+				OR post.id IN
+				(
+					SELECT post.id FROM post
+						JOIN usuario ON usuario.id = post.escritor
+						JOIN membroGrupo ON usuario.id = membroGrupo.membro
+						JOIN grupo
+							ON grupo.dono = membroGrupo.dono
+							AND grupo.nome = membroGrupo.nome
+					WHERE grupo.dono = $1
+						AND grupo.nome = ANY(users)
+				)
+
+			/* Group and order results */
+			GROUP BY
+				usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
+				post.data, post.rankpos, post.rankneg, rank.tipo
+			ORDER BY "date" DESC;
+
+		/* Users array is empty */
+		ELSEIF usecase = 2 THEN
+			RETURN QUERY SELECT	usuario.id as "writerID", 
+					usuario.nome as "writerProfileName", 
+					usuario.midia_path as "writerPicturePath", 
+
+					post.id as "id", 
+					post.conteudo as "content", 
+					post.data as "date", 
+					post.rankpos as "likes", 
+					post.rankneg as "dislikes",
+					post.comentarios as "comments",
+
+					rank.tipo as "userRank"
+			FROM post 
+			JOIN usuario 
+				ON post.escritor = usuario.id
+			LEFT JOIN rank /* We want the current user's ranking of this post */
+				ON rank.post = post.id
+				AND rank.avaliador = $1
+			WHERE post.id IN
+				(
+					SELECT post FROM post_ref_tag
+					WHERE tag = ANY(tags)
+				)
+
+			/* Group and order results */
+			GROUP BY
+				usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
+				post.data, post.rankpos, post.rankneg, rank.tipo
+			ORDER BY "date" DESC;
+
+		/* Users and Tags array has content */
+		ELSE
+			RETURN QUERY SELECT	usuario.id as "writerID", 
+					usuario.nome as "writerProfileName", 
+					usuario.midia_path as "writerPicturePath", 
+
+					post.id as "id", 
+					post.conteudo as "content", 
+					post.data as "date", 
+					post.rankpos as "likes", 
+					post.rankneg as "dislikes",
+					post.comentarios as "comments",
+
+					rank.tipo as "userRank"
+			FROM post 
+			JOIN usuario 
+				ON post.escritor = usuario.id
+			LEFT JOIN rank /* We want the current user's ranking of this post */
+				ON rank.post = post.id
+				AND rank.avaliador = $1
+			WHERE
+				/* User name is in users list */
+				usuario.nome = ANY (users)
+				/* User is in a group in users list [group of current user] */
+				OR post.id IN
+				(
+					SELECT post.id FROM post
+						JOIN usuario ON usuario.id = post.escritor
+						JOIN membroGrupo ON usuario.id = membroGrupo.membro
+						JOIN grupo
+							ON grupo.dono = membroGrupo.dono
+							AND grupo.nome = membroGrupo.nome
+					WHERE grupo.dono = $1
+						AND grupo.nome = ANY(users)
+				)
+				/* Tag is in tag list */
+				AND post.id IN
+				(
+					SELECT post FROM post_ref_tag
+					WHERE tag = ANY(tags)
+				)
+
+			/* Group and order results */
+			GROUP BY
+				usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
+				post.data, post.rankpos, post.rankneg, rank.tipo
+			ORDER BY "date" DESC;
+		END IF;
+	END;
+$body$ LANGUAGE plpgsql;
