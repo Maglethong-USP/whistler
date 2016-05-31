@@ -9,34 +9,8 @@ module.exports = {
 
 	GetFeed : function(userid, firstPostIdx, postCount, callback)
 	{
-		var post = {
-		//	'writer': userid,
-		};
-
-/*
-		SELECT	usuario.id as "writerID", 
-				usuario.nome as "writerProfileName", 
-				usuario.midia_path as "writerPicturePath", 
-
-				post.id as "id", 
-				post.conteudo as "content", 
-				post.data as "date", 
-				post.rankpos as "likes", 
-				post.rankneg as "dislikes",
-
-				rank.tipo as "userRank"
-
-		FROM post 
-		JOIN usuario 
-			ON post.escritor = usuario.id
-		LEFT JOIN rank
-			ON rank.post = post.id
-			AND rank.avaliador = usuario.id
-*/
-
-
-		Post.query('SELECT usuario.id as "writerID", usuario.nome as "writerProfileName", usuario.midia_path as "writerPicturePath", post.id as "id", post.conteudo as "content", post.data as "date", post.rankpos as "likes", post.rankneg as "dislikes", rank.tipo as "userRank" FROM post JOIN usuario ON post.escritor = usuario.id LEFT JOIN rank ON rank.post = post.id AND rank.avaliador = usuario.id', function(err, result){ // TODO [Where para apenas mostrar posts relevantes para este user]
-
+		Post.query('SELECT * FROM feed(' + userid + ')', function(err, result)
+		{
 			if(err)
 			{
 				sails.log(err);
@@ -48,17 +22,17 @@ module.exports = {
 			{
 				ret.push({
 					'writer': {
-						'id': rows[i].writerID,
-						'profileName': rows[i].writerProfileName,
-						'picturePath': rows[i].writerPicturePath ? rows[i].writerPicturePath : 'Uploads/profile-picture.jpg'
+						'id': rows[i].writerid,
+						'profileName': rows[i].writerprofilename,
+						'picturePath': rows[i].writerpicturepath ? rows[i].writerpicturepath : 'Uploads/profile-picture.jpg'
 					},
 					'id': rows[i].id,
 					'content': rows[i].content,
 					'date': rows[i].date,
 					'likes': rows[i].likes,
 					'dislikes': rows[i].dislikes,
-					'userLikes': rows[i].userRank == 'P',
-					'userDislikes': rows[i].userRank == 'N'
+					'userLikes': rows[i].userrank == 'P',
+					'userDislikes': rows[i].userrank == 'N'
 				});
 			}
 

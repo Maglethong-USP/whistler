@@ -27,6 +27,8 @@ INSERT INTO usuario (id, login, senha, nome, descricao)
 INSERT INTO usuario (id, login, senha, nome, descricao) 
 	VALUES (2, 'Gallo', 'qwe', 'Gallo', 'Um cara ai');
 
+ALTER SEQUENCE usuario_id_seq RESTART WITH 3;
+
 
 /* Post */
 INSERT INTO post (id, escritor, conteudo) 
@@ -44,6 +46,8 @@ INSERT INTO post (id, escritor, conteudo)
 INSERT INTO post (id, escritor, conteudo) 
 	VALUES (4, 2, 'Oi mundo! #HelloWorld');
 
+ALTER SEQUENCE post_id_seq RESTART WITH 5;
+
 
 /* Comment */
 INSERT INTO comentario (id, post, escritor, conteudo) 
@@ -54,6 +58,8 @@ INSERT INTO comentario (id, post, escritor, conteudo)
 
 INSERT INTO comentario (id, post, escritor, conteudo) 
 	VALUES (2, 2, 0, 'Mas eu sou #legal');
+
+ALTER SEQUENCE comentario_id_seq RESTART WITH 3;
 
 
 /* Rank */

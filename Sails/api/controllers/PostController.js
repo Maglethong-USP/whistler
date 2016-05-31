@@ -10,11 +10,10 @@ module.exports = {
 	// Get news feed for a user
 	GetFeed : function(req, res)
 	{
-		var userid = (req.body) ? req.body : undefined;
+		var userid = (req.body) ? req.body.userid : undefined;
 
 		PostService.GetFeed(userid, 0, 99999, function(result)
 		{
-//			sails.log(result);
 			return res.json(result);
 		});
 	},
@@ -24,7 +23,6 @@ module.exports = {
 	{
 		var post = (req.body) ? req.body : undefined;
 
-//		sails.log(post);
 		PostService.Create(post.writer, post.content, function(result)
 		{
 			return res.json(result);

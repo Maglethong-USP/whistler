@@ -90,6 +90,7 @@ CREATE TABLE post
 	data 		TIMESTAMP WITH TIME ZONE,
 	rankPos 	INT DEFAULT 0,
 	rankNeg 	INT DEFAULT 0,
+	comentarios INT DEFAULT 0,
 	"createdAt" timestamp with time zone,
 	"updatedAt" timestamp with time zone,
 	-- Constraints
@@ -119,7 +120,9 @@ CREATE TABLE comentario
 	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT comentario_pk
-		PRIMARY KEY (post, escritor, data),
+		PRIMARY KEY (id),
+	CONSTRAINT comentario_sk
+		UNIQUE (post, escritor, data),
 	CONSTRAINT comentario_fk_post 
 		FOREIGN KEY (post)
 		REFERENCES post (id)
@@ -355,7 +358,6 @@ CREATE TRIGGER rank_post BEFORE INSERT OR UPDATE OR DELETE ON rank
 	FOR EACH ROW EXECUTE PROCEDURE rank_post();
 
 /** ==================== Novo Post ====================
-	Insere data do sistema no post novo.
 	Responsavel por criar e manter as referencias corretas dos psots
 	para usuarios/grupos/tags listadas no texto do post.
  */
@@ -446,6 +448,38 @@ $post_refs$ LANGUAGE plpgsql;
 CREATE TRIGGER post_refs AFTER INSERT OR UPDATE ON post
 	FOR EACH ROW EXECUTE PROCEDURE post_refs();
 
+/** ==================== Novo Comentario ====================
+	Responsavel por manter a contagem de comentarios de cada post correta
+ */
+
+CREATE OR REPLACE FUNCTION comentario_post() 
+RETURNS TRIGGER AS $comentario_post$
+	BEGIN
+		IF (TG_OP = 'DELETE') THEN
+			UPDATE post SET comentarios = comentarios -1
+			WHERE post.id = OLD.post;
+			RETURN OLD;
+		ELSIF (TG_OP = 'UPDATE') THEN
+			IF (NEW.post = OLD.post) THEN
+
+			ELSE
+				UPDATE post SET comentarios = comentarios -1
+				WHERE post.id = OLD.post;
+				UPDATE post SET comentarios = comentarios +1
+				WHERE post.id = NEW.post;
+			END IF;
+			RETURN NEW;
+		ELSIF (TG_OP = 'INSERT') THEN
+			UPDATE post SET comentarios = comentarios +1
+			WHERE post.id = NEW.post;
+			RETURN NEW;
+		END IF;
+	END;
+$comentario_post$ LANGUAGE plpgsql;
+
+CREATE TRIGGER comentario_post BEFORE INSERT OR UPDATE OR DELETE ON comentario
+	FOR EACH ROW EXECUTE PROCEDURE comentario_post();
+
 /** ==================== Novo Post ====================
 	Insere data do sistema no post novo
  */
@@ -453,9 +487,7 @@ CREATE TRIGGER post_refs AFTER INSERT OR UPDATE ON post
 CREATE OR REPLACE FUNCTION post_data() 
 RETURNS TRIGGER AS $post_data$
 	BEGIN
-
 		NEW.data := current_timestamp;
-
 		RETURN NEW;
 	END;
 $post_data$ LANGUAGE plpgsql;
@@ -470,14 +502,12 @@ CREATE TRIGGER post_data BEFORE INSERT ON post
 CREATE OR REPLACE FUNCTION comentario_data() 
 RETURNS TRIGGER AS $comentario_data$
 	BEGIN
-
 		NEW.data := current_timestamp;
-
 		RETURN NEW;
 	END;
 $comentario_data$ LANGUAGE plpgsql;
 
-CREATE TRIGGER user_mensagem BEFORE INSERT ON comentario
+CREATE TRIGGER comentario_data BEFORE INSERT ON comentario
 	FOR EACH ROW EXECUTE PROCEDURE comentario_data();
 
 /** ==================== Nova Midia ====================
@@ -487,12 +517,179 @@ CREATE TRIGGER user_mensagem BEFORE INSERT ON comentario
 CREATE OR REPLACE FUNCTION midia_data() 
 RETURNS TRIGGER AS $midia_data$
 	BEGIN
-
 		NEW.data := current_timestamp;
-
 		RETURN NEW;
 	END;
 $midia_data$ LANGUAGE plpgsql;
 
-CREATE TRIGGER user_mensagem BEFORE INSERT ON midia
+CREATE TRIGGER midia_data BEFORE INSERT ON midia
 	FOR EACH ROW EXECUTE PROCEDURE midia_data();
+
+
+/** ========================================
+ *					Views
+ * =========================================
+ */
+
+/** ==================== Feed ====================
+	Busca pelo feed de um usuario
+
+	Parametro:
+	- ID do usuario a buscar o feed
+
+	Feed inclui:
+	- Proprios posts
+	- Posts com referencia a seu nome
+	- Posts com referencia a grupos que o incluem
+	- Posts de usuarios que ele segue
+ */
+CREATE OR REPLACE FUNCTION feed(userid INTEGER)
+	RETURNS TABLE (	writerID INTEGER, writerProfileName VARCHAR(64), writerPicturePath VARCHAR(126), 
+					id INTEGER, content TEXT, date TIMESTAMP WITH TIME ZONE, likes INTEGER, dislikes INTEGER,
+					comments INTEGER, userRank CHAR)
+AS
+$body$
+	SELECT	usuario.id as "writerID", 
+			usuario.nome as "writerProfileName", 
+			usuario.midia_path as "writerPicturePath", 
+
+			post.id as "id", 
+			post.conteudo as "content", 
+			post.data as "date", 
+			post.rankpos as "likes", 
+			post.rankneg as "dislikes",
+			post.comentarios as "comments",
+
+			rank.tipo as "userRank"
+	FROM post 
+	JOIN usuario 
+		ON post.escritor = usuario.id
+	LEFT JOIN rank /* We want the current user's ranking of this post */
+		ON rank.post = post.id
+		AND rank.avaliador = $1
+	WHERE
+		post.id IN 
+		(
+			/* Posts referring to this user */
+			SELECT post FROM post_ref_usuario
+			WHERE usuario = $1
+			UNION
+
+			/* Posts referring to a group with this user */
+			SELECT post FROM post_ref_grupo
+			JOIN membroGrupo 
+				ON membroGrupo.dono = post_ref_grupo.grupo_dono
+				AND membroGrupo.nome = post_ref_grupo.grupo_nome
+			WHERE membroGrupo.membro = $1
+		)
+
+	/* Add own posts */
+	UNION
+	SELECT	usuario.id as "writerID", 
+			usuario.nome as "writerProfileName", 
+			usuario.midia_path as "writerPicturePath", 
+
+			post.id as "id", 
+			post.conteudo as "content", 
+			post.data as "date", 
+			post.rankpos as "likes", 
+			post.rankneg as "dislikes",
+			post.comentarios as "comments",
+
+			rank.tipo as "userRank"
+	FROM post 
+	JOIN usuario 
+		ON post.escritor = usuario.id
+	LEFT JOIN rank /* We want the current user's ranking of this post */
+		ON rank.post = post.id
+		AND rank.avaliador = usuario.id
+	WHERE
+		usuario.id = $1
+
+	/* Add posts from users he is following */
+	UNION
+	SELECT	usuario.id as "writerID", 
+			usuario.nome as "writerProfileName", 
+			usuario.midia_path as "writerPicturePath", 
+
+			post.id as "id", 
+			post.conteudo as "content", 
+			post.data as "date", 
+			post.rankpos as "likes", 
+			post.rankneg as "dislikes",
+			post.comentarios as "comments",
+
+			rank.tipo as "userRank"
+	FROM post 
+	JOIN usuario 
+		ON post.escritor = usuario.id
+	LEFT JOIN rank /* We want the current user's ranking of this post */
+		ON rank.post = post.id
+		AND rank.avaliador = usuario.id
+	JOIN seguir
+		ON usuario.id = seguir.seguido
+	WHERE
+		seguir.seguidor = $1
+
+	/* Group and order results */
+	GROUP BY
+		usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
+		post.data, post.rankpos, post.rankneg, rank.tipo
+	ORDER BY "date" DESC;
+$body$
+language sql;
+
+/** ==================== Busca ====================
+	Realiza uma busca customizada de um usuario
+
+	Parametro:
+	- ID do usuario a buscar
+	- string contedo a busca a fazer
+ */
+CREATE OR REPLACE FUNCTION search(userid INTEGER, query TEXT)
+	RETURNS TABLE (	writerID INTEGER, writerProfileName VARCHAR(64), writerPicturePath VARCHAR(126), 
+					id INTEGER, content TEXT, date TIMESTAMP WITH TIME ZONE, likes INTEGER, dislikes INTEGER,
+					comments INTEGER, userRank CHAR)
+AS
+$body$
+	SELECT	usuario.id as "writerID", 
+			usuario.nome as "writerProfileName", 
+			usuario.midia_path as "writerPicturePath", 
+
+			post.id as "id", 
+			post.conteudo as "content", 
+			post.data as "date", 
+			post.rankpos as "likes", 
+			post.rankneg as "dislikes",
+			post.comentarios as "comments",
+
+			rank.tipo as "userRank"
+	FROM post 
+	JOIN usuario 
+		ON post.escritor = usuario.id
+	LEFT JOIN rank /* We want the current user's ranking of this post */
+		ON rank.post = post.id
+		AND rank.avaliador = $1
+	WHERE
+		post.id IN 
+		(
+			/* Posts referring to this user */
+			SELECT post FROM post_ref_usuario
+			WHERE usuario = $1
+			UNION
+
+			/* Posts referring to a group with this user */
+			SELECT post FROM post_ref_grupo
+			JOIN membroGrupo 
+				ON membroGrupo.dono = post_ref_grupo.grupo_dono
+				AND membroGrupo.nome = post_ref_grupo.grupo_nome
+			WHERE membroGrupo.membro = $1
+		)
+
+	/* Group and order results */
+	GROUP BY
+		usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
+		post.data, post.rankpos, post.rankneg, rank.tipo
+	ORDER BY "date" DESC;
+$body$
+language sql;
