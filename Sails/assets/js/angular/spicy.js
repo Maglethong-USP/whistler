@@ -91,40 +91,6 @@ myApp.factory('UserService', ['$http', function($http)
 	};
 }]);
 
-// Redirect controller
-myApp.controller('RedirectController', ['$scope', '$location', 'UserService', function( $scope, $location, UserService)
-{
-	this.ToMyPosts = function()
-	{
-		if(UserService.Get())
-			$location.path('/myposts');
-		else
-			console.log('Invalid redirect attempt');
-
-	}
-	this.ToMyGroups = function()
-	{
-		if(UserService.Get())
-			$location.path('/groups');
-		else
-			console.log('Invalid redirect attempt');
-	}
-	this.ToMyFeed = function()
-	{
-		if(UserService.Get())
-			$location.path('/feed');
-		else
-			console.log('Invalid redirect attempt');
-	}
-	this.ToMyProfile = function()
-	{
-		if(UserService.Get())
-			$location.path('/profile');
-		else
-			console.log('Invalid redirect attempt');
-	}
-}]);
-
 // User Controller -> keeps user in correct template depending on user
 myApp.controller('UserController', ['$scope', '$location', 'UserService', 'PostsService', function( $scope, $location, UserService, PostsService)
 {
@@ -140,8 +106,7 @@ myApp.controller('UserController', ['$scope', '$location', 'UserService', 'Posts
 		}
 		else
 		{
-			$location.path('/feed');
-			PostsService.LoadFeed();
+			PostsService.LoadFeedPage();
 		}
 	});
 }]);
@@ -201,7 +166,7 @@ myApp.controller('RegisterController', ['$scope', 'UserService', function( $scop
 
 
 // Post Create/Load Service
-myApp.factory('PostsService', ['UserService', '$http', function(UserService, $http)
+myApp.factory('PostsService', ['UserService', '$http', '$location', function(UserService, $http, $location)
 {
 	var viewingPosts = [];
 	var observerCallbacks = []; // $watch wasn't working properly
@@ -238,7 +203,7 @@ myApp.factory('PostsService', ['UserService', '$http', function(UserService, $ht
 					// Success
 					function(response)
 					{
-
+						// TODO [push new post into viewingPosts and call callbacks]
 					},
 					// Error
 					function(response)
@@ -253,7 +218,7 @@ myApp.factory('PostsService', ['UserService', '$http', function(UserService, $ht
 			}
 		},
 		// Load feed posts
-		'LoadFeed' : function()
+		'LoadFeedPage' : function()
 		{
 			var user = UserService.Get();
 
@@ -265,6 +230,7 @@ myApp.factory('PostsService', ['UserService', '$http', function(UserService, $ht
 					{	
 						viewingPosts = response.data;
 						notifyObservers();
+						$location.path('/feed');
 					},
 					// Error
 					function(response)
@@ -277,6 +243,38 @@ myApp.factory('PostsService', ['UserService', '$http', function(UserService, $ht
 			{
 				console.log('Invalid operation: can not post if not logged in.');
 			}
+		},
+		// Search for posts
+		'LoadSearchPage' : function(searchString)
+		{
+			var user = UserService.Get();
+
+			if(user)
+			{
+				$http.post('/post/Search', 
+				{
+					'userid': user.id,
+					'searchString': searchString
+				}).then(
+					// Success
+					function(response)
+					{	
+						viewingPosts = response.data;
+						notifyObservers();
+						$location.path('/feed'); // TODO [change location]
+					},
+					// Error
+					function(response)
+					{
+						alert('Could not complete search.');
+					}
+				);
+			}
+			else
+			{
+				console.log('Invalid operation: can not post if not logged in.');
+			}
+
 		},
 		// Share
 		'Share' : function(postIdx)
@@ -412,6 +410,18 @@ myApp.factory('PostsService', ['UserService', '$http', function(UserService, $ht
 	}
 }]);
 
+// Post search controller
+myApp.controller('PostSearchController', ['$scope', 'PostsService', function( $scope, PostsService)
+{
+	$scope.searchForm = '';
+
+	this.Search = function()
+	{
+		PostsService.LoadSearchPage($scope.searchForm);
+		$scope.searchForm = '';
+	}
+}]);
+
 // Post Display Controller
 myApp.controller('PostDisplayController', ['$scope', 'PostsService', function( $scope, PostsService )
 {
@@ -433,6 +443,11 @@ myApp.controller('PostDisplayController', ['$scope', 'PostsService', function( $
 	{
 		PostsService.Dislike(postIdx);
 	}
+
+	this.Follow = function(postIdx)
+	{
+		alert('Follow post Not implemented!');
+	}
 }]);
 
 // LogOut Controller
@@ -443,5 +458,27 @@ myApp.controller('PostCreateController', ['$scope', 'PostsService', function( $s
 	this.Create = function()
 	{
 		PostsService.Create($scope.postForm.content);
+	}
+}]);
+
+// Redirect controller
+myApp.controller('RedirectController', ['$scope', 'PostsService', function( $scope, PostsService)
+{
+	this.ToMyPosts = function()
+	{
+		alert('Not implemented!');
+
+	}
+	this.ToMyGroups = function()
+	{
+		alert('Not implemented!');
+	}
+	this.ToMyFeed = function()
+	{
+		PostsService.LoadFeedPage();
+	}
+	this.ToMyProfile = function()
+	{
+		alert('Not implemented!');
 	}
 }]);

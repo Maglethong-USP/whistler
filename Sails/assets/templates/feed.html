@@ -55,12 +55,12 @@
     </div>
 	
     <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;">
-		<div class="row" style="margin-bottom:2px;margin-top:2px;">
+		<div class="row" style="margin-bottom:2px;margin-top:2px;" ng-controller="PostSearchController as searchCtrl">
 			<div class="col-md-1">
-				<button type="button" class="btn btn-default" style="padding-bottom:4px;padding-top:4px">Buscar</button>
+				<button type="button" class="btn btn-default" style="padding-bottom:4px;padding-top:4px" ng-click="searchCtrl.Search()">Buscar</button>
 			</div>
 			<div class="col-md-11">
-				<input type="text"  class="form-control" style="padding-bottom:4px;padding-top:4px;"/>
+				<input type="text"  class="form-control" style="padding-bottom:4px;padding-top:4px;" ng-model="searchForm"/>
 			</div>
 		</div>
     </div>

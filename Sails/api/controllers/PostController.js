@@ -18,6 +18,17 @@ module.exports = {
 		});
 	},
 
+	// Search posts
+	Search : function(req, res)
+	{
+		var info = (req.body) ? req.body : undefined;
+
+		PostService.Search(info.userid, info.searchString, 0, 99999, function(result)
+		{
+			return res.json(result);
+		});
+	},
+
 	// Create a new post for a user
 	Create : function(req, res)
 	{
