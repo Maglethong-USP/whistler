@@ -1,354 +1,520 @@
-(
-	function(angular) 
+
+'use strict';
+var myApp = angular.module('spicyApp', ['ngRoute']);
+
+
+// Route Provider
+myApp.config(function ($routeProvider, $locationProvider) 
+{
+	$routeProvider.when('/', {
+		redirectTo: '/login'
+	}).when('/login', {
+		templateUrl: 'templates/login.html',
+		controller: 'UserController'
+	}).when('/feed', {
+		templateUrl: 'templates/feed.html',
+		controller: 'UserController'
+	});
+});
+
+// User Login/Logout/Register Service
+myApp.factory('UserService', ['$http', function($http)
+{
+	var user = {};
+
+	return {
+		// Log in with password
+		'Login' : function(login, password)
+		{
+			$http.post('/user/Authenticate', {
+				'login': login, 
+				'password': password
+			}).then(
+				// Success
+				function(response)
+				{
+					user = response.data;
+
+					if(false)
+					{
+						alert("Wrong login or password.");
+					}
+				},
+				// Error
+				function(response)
+				{
+					alert('Could not authenticate on server.');
+				}
+			);
+		},
+
+		// Logout
+		'Logout' : function()
+		{
+			user = {};
+		},
+
+		// Register
+		'Register' : function(profileName, login, password)
+		{
+			$http.post('/user/Register', {
+				'profileName': profileName, 
+				'login': login, 
+				'password': password
+			}).then(
+				// Success
+				function(response)
+				{
+					user = response.data;
+
+					if(false)
+					{
+						alert("User name already in use.");
+					}
+				},
+				// Error
+				function(response)
+				{
+					alert('Could not register on server.');
+				}
+			);
+		},
+
+		// Get the currently logged user
+		'Get' : function()
+		{
+			if(typeof user === 'undefined' || typeof user.id === 'undefined')
+				return false;
+			else
+				return user;
+		}
+	};
+}]);
+
+// User Controller -> keeps user in correct template depending on user
+myApp.controller('UserController', ['$scope', '$location', 'UserService', 'PostsService', function( $scope, $location, UserService, PostsService)
+{
+	$scope.user = UserService.Get();
+
+	$scope.$watch(function () { return UserService.Get(); }, function (newVal, oldVal) 
 	{
-		'use strict';
-		var myApp = angular.module('spicyApp', ['ngRoute']);
+		$scope.user = UserService.Get();
+
+		if (typeof newVal === 'undefined' || typeof newVal.id === 'undefined')
+		{
+			$location.path('/login');
+		}
+		else
+		{
+			PostsService.LoadFeedPage();
+		}
+	});
+}]);
+
+// Login Controller
+myApp.controller('LoginController', ['$scope', 'UserService', function( $scope, UserService )
+{
+	$scope.loginForm = {};
+
+	this.Login = function()
+	{
+		// Check logged in
+		if( UserService.Get() )
+		{
+			alert("Log out first!");
+		}
+		// Registration
+		else
+		{
+			UserService.Login($scope.loginForm.login, $scope.loginForm.password);
+			$scope.loginForm = {};
+		}
+	};
+
+	this.Logout = function()
+	{
+		UserService.Logout();
+	};
+}]);
+
+// LogOut Controller
+myApp.controller('RegisterController', ['$scope', 'UserService', function( $scope, UserService )
+{
+	$scope.registerForm = {};
+
+	this.Register = function()
+	{
+		// Check logged in
+		if( UserService.Get() )
+		{
+			alert("Log out first!");
+		}
+		// Registration
+		else
+		{
+			UserService.Register($scope.registerForm.profileName, $scope.registerForm.login, $scope.registerForm.password);
+			$scope.registerForm = {};
+		}
+	};
+}]);
+
+
+
+///////////
+// POSTS //
+///////////
+
+
+// Post Create/Load Service
+myApp.factory('PostsService', ['UserService', '$http', '$location', function(UserService, $http, $location)
+{
+	var viewingPosts = [];
+	var observerCallbacks = []; // $watch wasn't working properly
+
+	// Notification call
+	var notifyObservers = function()
+	{
+		angular.forEach(observerCallbacks, function(callback){
+			callback();
+		});
+	};
+
+	var LoadComments = function(postIdx)
+	{
 		
 
-		// Route Provider
-		myApp.config(function ($routeProvider, $locationProvider) 
-		{
-			$routeProvider.when('/', {
-				redirectTo: '/login'
-			}).when('/login', {
-				templateUrl: 'templates/login.html',
-				controller: 'UserController'
-			}).when('/feed', {
-				templateUrl: 'templates/feed.html',
-				controller: 'UserController'
-			});
-		});
-
-		// User Login/Logout/Register Service
-		myApp.factory('UserService', function()
-		{
-			// TODO [Server side]
-			var userList = [];
-
-
-			var user = {};
-
-			return {
-				// Log in with password
-				'Login' : function(login, password)
-				{
-					for(var i = userList.length -1; i>=0; i--)
-						if(userList[i].login === login)
-						{
-							if(userList[i].password === password)
-							{
-								user = userList[i];
-								return false
-							}
-							return true;
-						}
-					return true;
-				},
-
-				// Logout
-				'Logout' : function()
-				{
-					user = {};
-				},
-
-				// Register
-				'Register' : function(profileName, login, password)
-				{
-					for(var i = userList.length -1; i>=0; i--)
-						if(userList[i].login === login)
-						{
-							return true;
-						}
-
-					var newUser = {
-						'id' : 0,
-						'profileName': profileName,
-						'login': login,
-						'password': password,
-						'picturePath' : 'profile-picture.jpg'
-					};
-
-					userList.push(newUser);
-					user = newUser;
-					return false;
-				},
-
-				// Get the currently logged user
-				'Get' : function()
-				{
-					if(typeof user === 'undefined' || typeof user.id === 'undefined')
-						return false;
-					else
-						return user;
-				}
-			};
-		});
-
-		// Redirect controller
-		myApp.controller('RedirectController', ['$scope', '$location', 'UserService', function( $scope, $location, UserService)
-		{
-			this.ToMyPosts = function()
+		$http.post('/comment/GetComment', {
+			'postid': viewingPosts[postIdx].id
+		}).then(
+			// Success
+			function(response)
 			{
-				if(UserService.Get())
-					$location.path('/myposts');
-				else
-					console.log('Invalid redirect attempt');
-
+				viewingPosts[postIdx].comments = response.data;
+				notifyObservers();
+			},
+			// Error
+			function(response)
+			{
+				//alert('Could not load comments from server.');
+				console.log('Could not load comments from server.');
 			}
-			this.ToMyGroups = function()
-			{
-				if(UserService.Get())
-					$location.path('/groups');
-				else
-					console.log('Invalid redirect attempt');
-			}
-			this.ToMyFeed = function()
-			{
-				if(UserService.Get())
-					$location.path('/feed');
-				else
-					console.log('Invalid redirect attempt');
-			}
-			this.ToMyProfile = function()
-			{
-				if(UserService.Get())
-					$location.path('/profile');
-				else
-					console.log('Invalid redirect attempt');
-			}
-		}]);
+		);
+	}
 
-		// User Controller
-		myApp.controller('UserController', ['$scope', '$location', 'UserService', function( $scope, $location, UserService )
+	return {
+		// Register observer
+		'RegisterObserverCallback' : function(callback){
+			observerCallbacks.push(callback);
+		},
+		// Retrieve posts stored in service
+		'Get' : function()
 		{
-			$scope.user = UserService.Get();
-
-			$scope.$watch(function () { return UserService.Get() }, function (newVal, oldVal) 
-			{
-				$scope.user = UserService.Get();
-
-				if (typeof newVal === 'undefined' || typeof newVal.id === 'undefined')
-				{
-					$location.path('/login');
-				}
-				else
-				{
-					$location.path('/feed');
-				}
-
-			});
-		}]);
-
-		// Login Controller
-		myApp.controller('LoginController', ['$scope', 'UserService', function( $scope, UserService )
+			return viewingPosts;
+		},
+		// Create new post
+		'Create' : function(content)
 		{
-			$scope.loginForm = {};
+			var user = UserService.Get();
 
-			this.Login = function()
+			if(user)
 			{
-				if( UserService.Login($scope.loginForm.login, $scope.loginForm.password) )
-				{
-					$scope.loginForm.password = '';
-					alert("Wrong login or password.");
-				}
-				else
-				{
-					$scope.loginForm = {};
-				}
-
-				// TODO [When joining server:]
-			/*	UserService.Login(login, password).then(
+				$http.post('/post/Create', {
+					'writer': user.id,
+					'content': content
+				}).then(
 					// Success
 					function(response)
 					{
-
+						// TODO [push new post into viewingPosts and call callbacks]
 					},
 					// Error
 					function(response)
 					{
-
+						alert('Could not Create post on server.');
 					}
-				);*/
-			};
-
-			this.Logout = function()
+				);
+			}
+			else
 			{
-				UserService.Logout();
+				console.log('Invalid operation: can not post if not logged in.');
+			}
+		},
+		// Load feed posts
+		'LoadFeedPage' : function()
+		{
+			var user = UserService.Get();
 
-				// TODO [When joining server:]
-			/*	UserService.Logout().then(
+			if(user)
+			{
+				$http.post('/post/GetFeed', {'userid': user.id}).then(
 					// Success
 					function(response)
-					{
+					{	
+						viewingPosts = response.data;
+						notifyObservers();
+						$location.path('/feed');
 
-					},
-					// Error
-					function(response)
-					{
-
-					}
-				);*/
-			};
-		}]);
-
-		// LogOut Controller
-		myApp.controller('RegisterController', ['$scope', 'UserService', function( $scope, UserService )
-		{
-			$scope.registerForm = {};
-
-			this.Register = function()
-			{
-				if( UserService.Register($scope.registerForm.profileName, $scope.registerForm.login, $scope.registerForm.password) )
-				{
-					$scope.registerForm.login = '';
-					alert("Login name already in use.");
-				}
-				else
-				{
-					$scope.registerForm = {};
-				}
-
-				// TODO [When joining server:]
-			/*	UserService.Register(profileName, login, password).then(
-					// Success
-					function(response)
-					{
-
-					},
-					// Error
-					function(response)
-					{
-
-					}
-				);*/
-			};
-		}]);
-
-
-
-		///////////
-		// POSTS //
-		///////////
-
-
-		// Post Create/Load Service
-		myApp.factory('PostsService', ['UserService', function(UserService)
-		{
-			var viewingPosts = [{
-				'writer': {
-					'id' : 0,
-					'profileName': 'Andy',
-					'picturePath' : 'profile-picture.jpg'
-				},
-				'date': '11-11-1111',
-				'content': 'Lorem Ipsum.',
-				'comments': [{
-					'writer': {
-						'id' : 0,
-						'profileName': 'Andy',
-						'picturePath' : 'profile-picture.jpg'
-					},
-					'content': 'Lorem Ipsum.',
-					'date': '11-11-1111'
-				}],
-				'likes': 6,
-				'dislikes': 42,
-				'userLikes': false,
-				'userDislikes': false
-			}];
-
-			return {
-				// Retrieve posts stored in service
-				'Get' : function()
-				{
-					return viewingPosts;
-				},
-				// Create new post
-				'Create' : function()
-				{
-					var user = UserService.Get();
-
-					if(user)
-					{
-						var newPost = {
-							'writer': user,
-							'date': '11-11-1111',
-							'content': 'Lorem Ipsum.',
-							'comments': [],
-							'likes': 0,
-							'dislikes': 0,
-							'userLikes': false,
-							'userDislikes': false
-						};
-					}
-					else
-					{
-						console.log('Invalid operation: can not post if not logged in.');
-					}
-				},
-				// Share
-				'Share' : function(postIdx)
-				{
-
-				},
-				// Like
-				'Like' : function(postIdx)
-				{
-					if(viewingPosts[postIdx].userLikes)
-					{
-						viewingPosts[postIdx].userLikes = false;
-						viewingPosts[postIdx].likes--;
-					}
-					else
-					{
-						viewingPosts[postIdx].userLikes = true;
-						viewingPosts[postIdx].likes++;
-						if(viewingPosts[postIdx].userDislikes)
+						for(var i=0; i<viewingPosts.length; i++)
 						{
-							viewingPosts[postIdx].userDislikes = false;
-							viewingPosts[postIdx].dislikes--;
+							console.log(viewingPosts[i].commentCount + '(' + i + ' )');
+							if(viewingPosts[i].commentCount > 0)
+								LoadComments(i);
 						}
-					}
-				},
-				// UnLike
-				'Dislike' : function(postIdx)
-				{						
-					if(viewingPosts[postIdx].userDislikes)
+					},
+					// Error
+					function(response)
 					{
-						viewingPosts[postIdx].userDislikes = false;
-						viewingPosts[postIdx].dislikes--;
+						alert('Could not load feed posts from server.');
 					}
-					else
+				);
+			}
+			else
+			{
+				console.log('Invalid operation: can not post if not logged in.');
+			}
+		},
+		// Search for posts
+		'LoadSearchPage' : function(searchString)
+		{
+			var user = UserService.Get();
+
+			if(user)
+			{
+				$http.post('/post/Search', 
+				{
+					'userid': user.id,
+					'searchString': searchString
+				}).then(
+					// Success
+					function(response)
+					{	
+						viewingPosts = response.data;
+						notifyObservers();
+						$location.path('/feed'); // TODO [change location]
+
+						for(var i=0; i<viewingPosts.length; i++)
+						{
+							console.log(viewingPosts[i].commentCount + '(' + i + ' )');
+							if(viewingPosts[i].commentCount > 0)
+								LoadComments(i);
+						}
+					},
+					// Error
+					function(response)
 					{
-						viewingPosts[postIdx].userDislikes = true;
-						viewingPosts[postIdx].dislikes++;
-						if(viewingPosts[postIdx].userLikes)
+						alert('Could not complete search.');
+					}
+				);
+			}
+			else
+			{
+				console.log('Invalid operation: can not post if not logged in.');
+			}
+
+		},
+		// Share
+		'Share' : function(postIdx)
+		{
+
+		},
+		// Like
+		'Like' : function(postIdx)
+		{
+			var user = UserService.Get();
+			var rankInfo = {
+				'post': viewingPosts[postIdx].id,
+				'ranker': user.id
+			}
+
+			// User already likes
+			if(viewingPosts[postIdx].userLikes)
+			{
+				console.log(rankInfo);
+				$http.post('/rank/UnUpvote', rankInfo).then(
+					// Success
+					function(response)
+					{
+						if(response.data !== '')
 						{
 							viewingPosts[postIdx].userLikes = false;
 							viewingPosts[postIdx].likes--;
 						}
-					}
+					},
+					// Error
+					function(response){ alert('Could UnUpvote post on server.'); }
+				);
+			}
+			// User does not already like
+			else
+			{
+				// User dislikes
+				if(viewingPosts[postIdx].userDislikes)
+				{
+					$http.post('/rank/UnDownvote', rankInfo).then(
+						// Success
+						function(response)
+						{
+							if(response.data !== '')
+							{
+								viewingPosts[postIdx].userDislikes = false;
+								viewingPosts[postIdx].dislikes--;
+							}
+						},
+						// Error
+						function(response){ alert('Could UnDownvote post on server.'); }
+					);
 				}
 
+				$http.post('/rank/Upvote', rankInfo).then(
+					// Success
+					function(response)
+					{
+						if(response.data !== '')
+						{
+							viewingPosts[postIdx].userLikes = true;
+							viewingPosts[postIdx].likes++;
+						}
+					},
+					// Error
+					function(response){ alert('Could Upvote post on server.'); }
+				);
 			}
-		}]);
-
-		// LogOut Controller
-		myApp.controller('PostReadController', ['$scope', 'PostsService', function( $scope, PostsService )
+		},
+		// UnLike
+		'Dislike' : function(postIdx)
 		{
-			$scope.viewingPosts = PostsService.Get();
-
-			this.Like = function(postIdx)
-			{
-				PostsService.Like(postIdx);
+			var user = UserService.Get();
+			var rankInfo = {
+				'post': viewingPosts[postIdx].id,
+				'ranker': user.id
 			}
 
-			this.Dislike = function(postIdx)
+			// User already dislikes
+			if(viewingPosts[postIdx].userDislikes)
 			{
-				PostsService.Dislike(postIdx);
+				$http.post('/rank/UnDownvote', rankInfo).then(
+					// Success
+					function(response)
+					{
+						if(response.data !== '')
+						{
+							viewingPosts[postIdx].userDislikes = false;
+							viewingPosts[postIdx].dislikes--;
+						}
+					},
+					// Error
+					function(response){ alert('Could UnUpvote post on server.'); }
+				);
 			}
-		}]);
+			// User does not already like
+			else
+			{
+				// User likes
+				if(viewingPosts[postIdx].userLikes)
+				{
+					$http.post('/rank/UnUpvote', rankInfo).then(
+						// Success
+						function(response)
+						{
+							if(response.data !== '')
+							{
+								viewingPosts[postIdx].userLikes = false;
+								viewingPosts[postIdx].likes--;
+							}
+						},
+						// Error
+						function(response){ alert('Could UnDownvote post on server.'); }
+					);
+				}
+
+				$http.post('/rank/Downvote', rankInfo).then(
+					// Success
+					function(response)
+					{
+						if(response.data !== '')
+						{
+							viewingPosts[postIdx].userDislikes = true;
+							viewingPosts[postIdx].dislikes++;
+						}
+					},
+					// Error
+					function(response){ alert('Could Upvote post on server.'); }
+				);
+			}
+		}
 
 	}
-)
-(window.angular);
+}]);
+
+// Post search controller
+myApp.controller('PostSearchController', ['$scope', 'PostsService', function( $scope, PostsService)
+{
+	$scope.searchForm = '';
+
+	this.Search = function()
+	{
+		PostsService.LoadSearchPage($scope.searchForm);
+		$scope.searchForm = '';
+	}
+}]);
+
+// Post Display Controller
+myApp.controller('PostDisplayController', ['$scope', 'PostsService', function( $scope, PostsService )
+{
+	$scope.viewingPosts = PostsService.Get();
+
+	var WatchCallback = function()
+	{
+		$scope.viewingPosts = PostsService.Get();
+	}
+	PostsService.RegisterObserverCallback(WatchCallback);
+
+
+	this.Like = function(postIdx)
+	{
+		PostsService.Like(postIdx);
+	}
+
+	this.Dislike = function(postIdx)
+	{
+		PostsService.Dislike(postIdx);
+	}
+
+	this.Follow = function(postIdx)
+	{
+		alert('Follow post Not implemented!');
+	}
+}]);
+
+// LogOut Controller
+myApp.controller('PostCreateController', ['$scope', 'PostsService', function( $scope, PostsService )
+{
+	$scope.postForm = { 'content': 'Hahaha!' };
+
+	this.Create = function()
+	{
+		PostsService.Create($scope.postForm.content);
+	}
+}]);
+
+// Redirect controller
+myApp.controller('RedirectController', ['$scope', 'PostsService', function( $scope, PostsService)
+{
+	this.ToMyPosts = function()
+	{
+		alert('Not implemented!');
+
+	}
+	this.ToMyGroups = function()
+	{
+		alert('Not implemented!');
+	}
+	this.ToMyFeed = function()
+	{
+		PostsService.LoadFeedPage();
+	}
+	this.ToMyProfile = function()
+	{
+		alert('Not implemented!');
+	}
+}]);
