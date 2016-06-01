@@ -172,12 +172,34 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 	var observerCallbacks = []; // $watch wasn't working properly
 
 	// Notification call
-	var notifyObservers = function(){
+	var notifyObservers = function()
+	{
 		angular.forEach(observerCallbacks, function(callback){
 			callback();
 		});
 	};
 
+	var LoadComments = function(postIdx)
+	{
+		
+
+		$http.post('/comment/GetComment', {
+			'postid': viewingPosts[postIdx].id
+		}).then(
+			// Success
+			function(response)
+			{
+				viewingPosts[postIdx].comments = response.data;
+				notifyObservers();
+			},
+			// Error
+			function(response)
+			{
+				//alert('Could not load comments from server.');
+				console.log('Could not load comments from server.');
+			}
+		);
+	}
 
 	return {
 		// Register observer
@@ -231,6 +253,13 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 						viewingPosts = response.data;
 						notifyObservers();
 						$location.path('/feed');
+
+						for(var i=0; i<viewingPosts.length; i++)
+						{
+							console.log(viewingPosts[i].commentCount + '(' + i + ' )');
+							if(viewingPosts[i].commentCount > 0)
+								LoadComments(i);
+						}
 					},
 					// Error
 					function(response)
