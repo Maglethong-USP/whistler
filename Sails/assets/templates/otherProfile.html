@@ -114,11 +114,13 @@
 								<h4>Comentarios:</h4>
 							</div>
 							<div class="panel-body">
-								<div class="scroll" ng-repeat="comment in post.comments">
-									<div class="comment">
-										{{comment.writer.profileName}}
-										: 
-										{{comment.contentprofileName}}
+								<div class="scroll">
+									<div ng-repeat="comment in post.comments">
+										<div class="comment">
+											{{comment.writer.profileName}}
+											: 
+											{{comment.content}}
+										</div>
 									</div>
 								</div>
 							</div>
