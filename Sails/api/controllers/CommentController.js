@@ -13,6 +13,7 @@ module.exports = {
 		var postid = (req.body) ? req.body.postid : undefined;
 
 		Comment.find({'post': postid})
+		.sort('date ASC')
 		.populate('writer')
 		.exec(function(err, result)
 		{
