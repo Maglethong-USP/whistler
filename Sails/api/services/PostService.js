@@ -119,5 +119,27 @@ module.exports = {
 
 			callback(result);
 		});
+	},
+
+	Share : function(userid, postid, callback) // TODO [transformar em tabela share no lugar de copiar o post]
+	{
+		var post = {
+			'id': postid
+		};
+
+		Post.findOne(post).exec(function(err, result){
+			if(err){ sails.log(err); }
+
+			var newpost = {
+				'writer': userid,
+				'content': result.content
+			}
+
+			Post.create(newpost).exec(function(err1, result1){
+				if(err){ sails.log(err1); }
+
+				callback(result1);
+			});
+		});
 	}
 }

@@ -51,6 +51,17 @@ module.exports = {
 		});
 	},
 
+	// Share a post
+	Share : function(req, res)
+	{
+		var info = (req.body) ? req.body : undefined;
+
+		PostService.Share(info.userid, info.postid, function(result)
+		{
+			return res.json(result);
+		});
+	},
+
 	// 
 	GetWriter : function(post, callback)
 	{

@@ -365,7 +365,27 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 		// Share
 		'Share' : function(postIdx)
 		{
+			var user = UserService.Get();
 
+			if(user)
+			{
+				$http.post('/post/Share', {
+					'userid': user.id,
+					'postid': viewingPosts[postIdx].id
+				}).then(
+					// Success
+					function(response){ }, // TODO [something to do here?]
+					// Error
+					function(response)
+					{
+						alert('Could not Create post on server.');
+					}
+				);
+			}
+			else
+			{
+				console.log('Invalid operation: can not post if not logged in.');
+			}
 		},
 		// Like
 		'Like' : function(postIdx)
@@ -536,9 +556,9 @@ myApp.controller('PostDisplayController', ['$scope', 'PostsService', 'RedirectSe
 		PostsService.Dislike(postIdx);
 	}
 
-	this.Follow = function(postIdx)
+	this.Share = function(postIdx)
 	{
-		alert('Follow post Not implemented!');
+		PostsService.Share(postIdx);
 	}
 }]);
 
