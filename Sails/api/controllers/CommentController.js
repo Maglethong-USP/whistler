@@ -23,6 +23,27 @@ module.exports = {
 
 			return res.json(result);
 		});
+	},
+
+	// New comment
+	NewComment : function(req, res)
+	{
+		var info = (req.body) ? req.body : undefined;
+
+		var comment = {
+			'post': info.postid,
+			'writer': info.writerid,
+			'content': info.content
+		};
+
+		Comment.create(comment)
+		//.populate('writer') // Does not work... population on client with logged user
+		.exec(function(err, result)
+		{
+			if(err){ sails.log(err); }
+
+			return res.json(result);
+		});
 	}
 };
 

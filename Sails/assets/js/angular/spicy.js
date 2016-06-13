@@ -302,8 +302,8 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 					{	
 						viewingPosts = response.data;
 						notifyObservers();
-						$location.path('/feed'); // TODO [change location]
-					//	$location.path('/otherprofile').search({id: userid});
+					//	$location.path('/feed'); // TODO [change location]
+						$location.path('/otherprofile').search({id: userid});
 
 						for(var i=0; i<viewingPosts.length; i++)
 						{
@@ -315,7 +315,7 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 					// Error
 					function(response)
 					{
-						alert('Could not complete search.');
+						alert('Could not load user profile.');
 					}
 				);
 			}
@@ -511,8 +511,37 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 					function(response){ alert('Could Upvote post on server.'); }
 				);
 			}
-		}
+		},
+		// Comment
+		'Comment' : function(postIdx, comment)
+		{
+			var user = UserService.Get();
 
+			if(user)
+			{
+				$http.post('/Comment/NewComment', {
+					'writerid': user.id,
+					'postid': viewingPosts[postIdx].id,
+					'content': comment
+				}).then(
+					// Success
+					function(response)
+					{
+						response.data.writer = user;
+						viewingPosts[postIdx].comments.push(response.data);
+					},
+					// Error
+					function(response)
+					{
+						alert('Could not Create comment on server.');
+					}
+				);
+			}
+			else
+			{
+				console.log('Invalid operation: can not create comment if not logged in.');
+			}
+		}
 	}
 }]);
 
@@ -565,7 +594,7 @@ myApp.controller('PostDisplayController', ['$scope', 'PostsService', 'RedirectSe
 // LogOut Controller
 myApp.controller('PostCreateController', ['$scope', 'PostsService', function( $scope, PostsService )
 {
-	$scope.postForm = { 'content': 'Hahaha!' };
+	$scope.postForm = { 'content': 'Hahaha!' }; // TODO [escrever novo post na view]
 
 	this.Create = function()
 	{
@@ -573,6 +602,16 @@ myApp.controller('PostCreateController', ['$scope', 'PostsService', function( $s
 	}
 }]);
 
+// Comment create controller
+myApp.controller('CreateCommentController', ['$scope', 'PostsService', function($scope, PostsService){
+	$scope.commentInput = '';
+
+	this.Create = function(postIdx)
+	{
+		PostsService.Comment(postIdx, $scope.commentInput);
+		$scope.commentInput = '';
+	}
+}])
 
 
 	//////////////

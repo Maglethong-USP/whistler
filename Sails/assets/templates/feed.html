@@ -107,12 +107,12 @@
 									</div>
 								</div>
 							</div>
-							<div class="panel-footer">
-								<form class="form-horizontal" role="form">
+							<div class="panel-footer" ng-controller="CreateCommentController as commentCreate">
+								<form class="form-horizontal" role="form" ng-submit="commentCreate.Create($index)">
 									<div class="form-group">
 											<label class="col-sm-2 control-label">{{user.profileName}}:</label>
 											<div class="col-sm-9">
-												<input class="form-control" id="newComment" type="text"/>
+												<input class="form-control" id="newComment" type="text" ng-model="commentInput"/>
 											</div>
 											<input type="submit" class="col-sm-1 btn btn-default" value="Enviar"/>
 									</div>
