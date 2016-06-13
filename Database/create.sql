@@ -637,6 +637,46 @@ AS $body$
 	ORDER BY "date" DESC;
 $body$ LANGUAGE sql;
 
+/** ==================== UserPosts ====================
+	Busca pelos psots de um determinado usuario
+
+	Parametro:
+	- ID do usuario que realiza a busca
+	- ID do usuario a buscar os posts
+ */
+CREATE OR REPLACE FUNCTION userPosts(searcherID INTEGER, targetID INTEGER)
+	RETURNS TABLE (	writerID INTEGER, writerProfileName VARCHAR(64), writerPicturePath VARCHAR(126), 
+					id INTEGER, content TEXT, date TIMESTAMP WITH TIME ZONE, likes INTEGER, dislikes INTEGER,
+					comments INTEGER, userRank CHAR)
+AS $body$
+	SELECT	usuario.id as "writerID", 
+			usuario.nome as "writerProfileName", 
+			usuario.midia_path as "writerPicturePath", 
+
+			post.id as "id", 
+			post.conteudo as "content", 
+			post.data as "date", 
+			post.rankpos as "likes", 
+			post.rankneg as "dislikes",
+			post.comentarios as "comments",
+
+			rank.tipo as "userRank"
+	FROM post 
+	JOIN usuario 
+		ON post.escritor = usuario.id
+	LEFT JOIN rank /* We want the current user's ranking of this post */
+		ON rank.post = post.id
+		AND rank.avaliador = $1
+	WHERE /* We want the current searched user's posts */
+		usuario.id = $2
+
+	/* Group and order results */
+	GROUP BY
+		usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
+		post.data, post.rankpos, post.rankneg, rank.tipo
+	ORDER BY "date" DESC;
+$body$ LANGUAGE sql;
+
 /** ==================== Busca ====================
 	Realiza uma busca customizada de um usuario
 

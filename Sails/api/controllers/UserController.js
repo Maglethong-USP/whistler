@@ -23,7 +23,6 @@ module.exports = {
 	{
 		var user = (req.body) ? req.body : undefined;
 
-//		sails.log(user);
 		UserService.Register(user.profileName, user.login, user.password, function(result)
 		{
 			return res.json(result);
@@ -33,17 +32,24 @@ module.exports = {
 	// Get a specific user
 	Get : function(req, res)
 	{
-		var userID = (req.body) ? req.body.userID : undefined;
+		var userId = (req.body) ? req.body.userId : undefined;
 
-		User.findone(user).exec(function(err, result)
+		UserService.Register(userId, function(result)
 		{
-			if(err)
-			{
-				sails.log(err);
-			}
-
 			return res.json(result);
 		});
+	},
+
+	// Follow
+	Follow : function(req, res)
+	{
+
+	},
+
+	// Unfollow
+	Unfollow : function(req, res)
+	{
+
 	}
 };
 

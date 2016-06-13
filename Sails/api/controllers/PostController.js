@@ -18,6 +18,17 @@ module.exports = {
 		});
 	},
 
+	// get Posts from specific user
+	GetUserPosts : function(req, res)
+	{
+		var info = (req.body) ? req.body : undefined;
+
+		PostService.GetUserPosts(info.userid, info.target, 0, 99999, function(result)
+		{
+			return res.json(result);
+		});
+	},
+
 	// Search posts
 	Search : function(req, res)
 	{

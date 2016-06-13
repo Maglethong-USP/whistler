@@ -14,6 +14,18 @@ myApp.config(function ($routeProvider, $locationProvider)
 	}).when('/feed', {
 		templateUrl: 'templates/feed.html',
 		controller: 'UserController'
+	}).when('/search', {
+		templateUrl: 'templates/feed.html',
+		controller: 'UserController'
+	}).when('/mygroups', {
+		templateUrl: 'templates/myGroups.html',
+		controller: 'UserController'
+	}).when('/myprofile', {
+		templateUrl: 'templates/myProfile.html',
+		controller: 'UserController'
+	}).when('/otherprofile', {
+		templateUrl: 'templates/otherProfile.html',
+		controller: 'UserController'
 	});
 });
 
@@ -98,16 +110,16 @@ myApp.controller('UserController', ['$scope', '$location', 'UserService', 'Posts
 
 	$scope.$watch(function () { return UserService.Get(); }, function (newVal, oldVal) 
 	{
-		$scope.user = UserService.Get();
-
-		if (typeof newVal === 'undefined' || typeof newVal.id === 'undefined')
+		if (!newVal)
 		{
 			$location.path('/login');
 		}
-		else
+		else if(!$scope.user)
 		{
 			PostsService.LoadFeedPage();
 		}
+
+		$scope.user = UserService.Get();
 	});
 }]);
 
@@ -256,7 +268,7 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 
 						for(var i=0; i<viewingPosts.length; i++)
 						{
-							console.log(viewingPosts[i].commentCount + '(' + i + ' )');
+//							console.log(viewingPosts[i].commentCount + '(' + i + ' )');
 							if(viewingPosts[i].commentCount > 0)
 								LoadComments(i);
 						}
@@ -265,6 +277,45 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 					function(response)
 					{
 						alert('Could not load feed posts from server.');
+					}
+				);
+			}
+			else
+			{
+				console.log('Invalid operation: can not post if not logged in.');
+			}
+		},
+		// Load user specific posts
+		'LoadUserPosts' : function(userId)
+		{
+			var user = UserService.Get();
+
+			if(user)
+			{
+				$http.post('/post/GetUserPosts', 
+				{
+					'userid': user.id,
+					'target': userId
+				}).then(
+					// Success
+					function(response)
+					{	
+						viewingPosts = response.data;
+						notifyObservers();
+						$location.path('/feed'); // TODO [change location]
+					//	$location.path('/otherprofile').search({id: userid});
+
+						for(var i=0; i<viewingPosts.length; i++)
+						{
+							console.log(viewingPosts[i].commentCount + '(' + i + ' )');
+							if(viewingPosts[i].commentCount > 0)
+								LoadComments(i);
+						}
+					},
+					// Error
+					function(response)
+					{
+						alert('Could not complete search.');
 					}
 				);
 			}
@@ -290,7 +341,7 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 					{	
 						viewingPosts = response.data;
 						notifyObservers();
-						$location.path('/feed'); // TODO [change location]
+						$location.path('/search').search({search: searchString});
 
 						for(var i=0; i<viewingPosts.length; i++)
 						{
@@ -310,7 +361,6 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 			{
 				console.log('Invalid operation: can not post if not logged in.');
 			}
-
 		},
 		// Share
 		'Share' : function(postIdx)
@@ -459,7 +509,7 @@ myApp.controller('PostSearchController', ['$scope', 'PostsService', function( $s
 }]);
 
 // Post Display Controller
-myApp.controller('PostDisplayController', ['$scope', 'PostsService', function( $scope, PostsService )
+myApp.controller('PostDisplayController', ['$scope', 'PostsService', 'RedirectService', function( $scope, PostsService, RedirectService )
 {
 	$scope.viewingPosts = PostsService.Get();
 
@@ -469,6 +519,12 @@ myApp.controller('PostDisplayController', ['$scope', 'PostsService', function( $
 	}
 	PostsService.RegisterObserverCallback(WatchCallback);
 
+
+
+	this.RedirectToWriterProfile = function(postIdx)
+	{
+		PostsService.LoadUserPosts($scope.viewingPosts[postIdx].writer.id);
+	}
 
 	this.Like = function(postIdx)
 	{
@@ -497,24 +553,90 @@ myApp.controller('PostCreateController', ['$scope', 'PostsService', function( $s
 	}
 }]);
 
-// Redirect controller
-myApp.controller('RedirectController', ['$scope', 'PostsService', function( $scope, PostsService)
+
+
+	//////////////
+	// Redirect //
+	//////////////
+
+// Redirect Service
+myApp.factory('RedirectService', ['UserService', 'PostsService', '$location', function(UserService, PostsService, $location)
 {
-	this.ToMyPosts = function()
+	return {
+		// Redirect to logged user posts page
+		'ToMyPosts' : function()
+		{
+			alert('Not implemented!');
+		},
+		// Redirect to logged user groups page
+		'ToMyGroups' : function()
+		{
+			alert('Not implemented!');
+
+			if(UserService.Get())
+				$location.path('/mygroups');
+		},
+		// Redirect to logged user feed page
+		'ToMyFeed' : function()
+		{
+			PostsService.LoadFeedPage();
+		},
+		// Redirect to logged user profile page
+		'ToMyProfile' : function()
+		{
+
+			alert('Not implemented!');
+
+			if(UserService.Get())
+				$location.path('/myprofile');
+		}
+	};
+}]);
+
+// Redirect controller
+myApp.controller('RedirectController', ['RedirectService', function(RedirectService)
+{
+	this.ToMyPosts = function(){ RedirectService.ToMyPosts(); }
+	this.ToMyGroups = function(){ RedirectService.ToMyGroups(); }
+	this.ToMyFeed = function(){ RedirectService.ToMyFeed(); }
+	this.ToMyProfile = function(){ RedirectService.ToMyProfile(); }
+}]);
+
+
+
+	////////////
+	// GROUPS //
+	////////////
+
+
+myApp.controller('GroupController', ['$scope', function($scope)
+{
+	$scope.groupList = [];
+
+
+
+	this.NewGroup = function()
 	{
-		alert('Not implemented!');
 
 	}
-	this.ToMyGroups = function()
+
+	this.SaveGroup = function(groupIdx)
 	{
-		alert('Not implemented!');
+
 	}
-	this.ToMyFeed = function()
+
+	this.DeleteGroup = function(groupIdx)
 	{
-		PostsService.LoadFeedPage();
+
 	}
-	this.ToMyProfile = function()
+
+	this.AddMember = function(groupIdx, memberName)
 	{
-		alert('Not implemented!');
+
+	}
+
+	this.RemoveMember = function(groupIdx, memberIdx)
+	{
+
 	}
 }]);
