@@ -65,7 +65,9 @@
 				<div class="row">
 					<div class="col-md-2" align="center">
 						<img ng-src="{{post.writer.picturePath}}" class="img-thumbnail" width="150" height="150"/> 
-						<h4>{{post.date}}</h4>
+						<h4>
+							<span> {{post.date | date:'medium'}} </span>
+						</h4>
 						<div class="row" style="margin-top:150px;">
 							{{post.likes}} | {{post.dislikes}}
 							<div class="row">
