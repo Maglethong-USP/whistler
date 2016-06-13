@@ -91,10 +91,10 @@
 							{{post.likes}} | {{post.dislikes}}
 							<div class="row">
 								<div class="btn-group" style="vertical-align:bottom;">
-									<button type="button" class="btn btn-primary" style="background-color:#14b814;border-color:#808080;" ng-click="postCtrl.Like($index)">
+									<button type="button" class="btn btn-success" ng-click="postCtrl.Like($index)">
 										+
 									</button>
-									<button type="button" class="btn btn-primary" style="background-color:#cc3300;border-color:#808080;" ng-click="postCtrl.Dislike($index)">
+									<button type="button" class="btn btn-danger" ng-click="postCtrl.Dislike($index)">
 										-
 									</button>
 								</div>
@@ -131,6 +131,17 @@
 										{{comment.contentprofileName}}
 									</div>
 								</div>
+							</div>
+							<div class="panel-footer">
+								<form class="form-horizontal" role="form">
+									<div class="form-group">
+											<label class="col-sm-2 control-label">{{user.profileName}}:</label>
+											<div class="col-sm-9">
+												<input class="form-control" id="newComment" type="text"/>
+											</div>
+											<input type="submit" class="col-sm-1 btn btn-default" value="Enviar"/>
+									</div>
+								</form>
 							</div>
 						</div>
 					</div>
