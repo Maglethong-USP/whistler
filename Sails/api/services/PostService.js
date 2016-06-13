@@ -30,6 +30,7 @@ module.exports = {
 					'date': rows[i].date,
 					'likes': rows[i].likes,
 					'dislikes': rows[i].dislikes,
+					'shares': rows[i].shares,
 					'commentCount': rows[i].comments,
 					'userLikes': rows[i].userrank == 'P',
 					'userDislikes': rows[i].userrank == 'N'
@@ -60,6 +61,7 @@ module.exports = {
 					'date': rows[i].date,
 					'likes': rows[i].likes,
 					'dislikes': rows[i].dislikes,
+					'shares': rows[i].shares,
 					'commentCount': rows[i].comments,
 					'userLikes': rows[i].userrank == 'P',
 					'userDislikes': rows[i].userrank == 'N'
@@ -93,6 +95,7 @@ module.exports = {
 					'date': rows[i].date,
 					'likes': rows[i].likes,
 					'dislikes': rows[i].dislikes,
+					'shares': rows[i].shares,
 					'commentCount': rows[i].comments,
 					'userLikes': rows[i].userrank == 'P',
 					'userDislikes': rows[i].userrank == 'N'
@@ -127,12 +130,16 @@ module.exports = {
 			'id': postid
 		};
 
-		Post.findOne(post).exec(function(err, result){
+		Post.findOne(post)
+		.populate('writer')
+		.exec(function(err, result){
 			if(err){ sails.log(err); }
+
+			Post.update({'id': result.id}, {'shares': result.shares +1}, function(err, updated){});
 
 			var newpost = {
 				'writer': userid,
-				'content': result.content
+				'content': result.writer.profileName + ": " + result.content
 			}
 
 			Post.create(newpost).exec(function(err1, result1){

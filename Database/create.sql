@@ -84,15 +84,16 @@ CREATE TABLE usuario
 CREATE TABLE post
 (
 	-- Atributos
-	id 			SERIAL,
-	escritor	INT,
-	conteudo	TEXT,
-	data 		TIMESTAMP WITH TIME ZONE,
-	rankPos 	INT DEFAULT 0,
-	rankNeg 	INT DEFAULT 0,
-	comentarios INT DEFAULT 0,
-	"createdAt" timestamp with time zone,
-	"updatedAt" timestamp with time zone,
+	id 					SERIAL,
+	escritor			INT,
+	conteudo			TEXT,
+	data 				TIMESTAMP WITH TIME ZONE,
+	rankPos 			INT DEFAULT 0,
+	rankNeg 			INT DEFAULT 0,
+	comentarios 		INT DEFAULT 0,
+	compartilhamentos 	INT DEFAULT 0,
+	"createdAt" 		timestamp with time zone,
+	"updatedAt" 		timestamp with time zone,
 	-- Constraints
 	CONSTRAINT post_pk
 		PRIMARY KEY (id),
@@ -546,7 +547,7 @@ CREATE TRIGGER midia_data BEFORE INSERT ON midia
 CREATE OR REPLACE FUNCTION feed(userid INTEGER)
 	RETURNS TABLE (	writerID INTEGER, writerProfileName VARCHAR(64), writerPicturePath VARCHAR(126), 
 					id INTEGER, content TEXT, date TIMESTAMP WITH TIME ZONE, likes INTEGER, dislikes INTEGER,
-					comments INTEGER, userRank CHAR)
+					shares INTEGER, comments INTEGER, userRank CHAR)
 AS $body$
 	SELECT	usuario.id as "writerID", 
 			usuario.nome as "writerProfileName", 
@@ -557,6 +558,7 @@ AS $body$
 			post.data as "date", 
 			post.rankpos as "likes", 
 			post.rankneg as "dislikes",
+			post.compartilhamentos as "shares",
 			post.comentarios as "comments",
 
 			rank.tipo as "userRank"
@@ -593,6 +595,7 @@ AS $body$
 			post.data as "date", 
 			post.rankpos as "likes", 
 			post.rankneg as "dislikes",
+			post.compartilhamentos as "shares",
 			post.comentarios as "comments",
 
 			rank.tipo as "userRank"
@@ -616,6 +619,7 @@ AS $body$
 			post.data as "date", 
 			post.rankpos as "likes", 
 			post.rankneg as "dislikes",
+			post.compartilhamentos as "shares",
 			post.comentarios as "comments",
 
 			rank.tipo as "userRank"
@@ -633,7 +637,7 @@ AS $body$
 	/* Group and order results */
 	GROUP BY
 		usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
-		post.data, post.rankpos, post.rankneg, rank.tipo
+		post.data, post.rankpos, post.rankneg, post.compartilhamentos, rank.tipo
 	ORDER BY "date" DESC;
 $body$ LANGUAGE sql;
 
@@ -647,7 +651,7 @@ $body$ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION userPosts(searcherID INTEGER, targetID INTEGER)
 	RETURNS TABLE (	writerID INTEGER, writerProfileName VARCHAR(64), writerPicturePath VARCHAR(126), 
 					id INTEGER, content TEXT, date TIMESTAMP WITH TIME ZONE, likes INTEGER, dislikes INTEGER,
-					comments INTEGER, userRank CHAR)
+					shares INTEGER, comments INTEGER, userRank CHAR)
 AS $body$
 	SELECT	usuario.id as "writerID", 
 			usuario.nome as "writerProfileName", 
@@ -658,6 +662,7 @@ AS $body$
 			post.data as "date", 
 			post.rankpos as "likes", 
 			post.rankneg as "dislikes",
+			post.compartilhamentos as "shares",
 			post.comentarios as "comments",
 
 			rank.tipo as "userRank"
@@ -673,7 +678,7 @@ AS $body$
 	/* Group and order results */
 	GROUP BY
 		usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
-		post.data, post.rankpos, post.rankneg, rank.tipo
+		post.data, post.rankpos, post.rankneg, post.compartilhamentos, rank.tipo
 	ORDER BY "date" DESC;
 $body$ LANGUAGE sql;
 
@@ -687,7 +692,7 @@ $body$ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION search(userid INTEGER, query TEXT)
 	RETURNS TABLE (	writerID INTEGER, writerProfileName VARCHAR(64), writerPicturePath VARCHAR(126), 
 					id INTEGER, content TEXT, date TIMESTAMP WITH TIME ZONE, likes INTEGER, dislikes INTEGER,
-					comments INTEGER, userRank CHAR)
+					shares INTEGER, comments INTEGER, userRank CHAR)
 AS $body$
 	DECLARE
 		input 		TEXT[];
@@ -747,6 +752,7 @@ AS $body$
 					post.data as "date", 
 					post.rankpos as "likes", 
 					post.rankneg as "dislikes",
+					post.compartilhamentos as "shares",
 					post.comentarios as "comments",
 
 					rank.tipo as "userRank"
@@ -775,7 +781,7 @@ AS $body$
 			/* Group and order results */
 			GROUP BY
 				usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
-				post.data, post.rankpos, post.rankneg, rank.tipo
+				post.data, post.rankpos, post.rankneg, post.compartilhamentos, rank.tipo
 			ORDER BY "date" DESC;
 
 		/* Users array is empty */
@@ -789,6 +795,7 @@ AS $body$
 					post.data as "date", 
 					post.rankpos as "likes", 
 					post.rankneg as "dislikes",
+					post.compartilhamentos as "shares",
 					post.comentarios as "comments",
 
 					rank.tipo as "userRank"
@@ -807,7 +814,7 @@ AS $body$
 			/* Group and order results */
 			GROUP BY
 				usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
-				post.data, post.rankpos, post.rankneg, rank.tipo
+				post.data, post.rankpos, post.rankneg, post.compartilhamentos, rank.tipo
 			ORDER BY "date" DESC;
 
 		/* Users and Tags array has content */
@@ -821,6 +828,7 @@ AS $body$
 					post.data as "date", 
 					post.rankpos as "likes", 
 					post.rankneg as "dislikes",
+					post.compartilhamentos as "shares",
 					post.comentarios as "comments",
 
 					rank.tipo as "userRank"
@@ -855,7 +863,7 @@ AS $body$
 			/* Group and order results */
 			GROUP BY
 				usuario.id, usuario.nome, usuario.midia_path, post.id, post.conteudo, 
-				post.data, post.rankpos, post.rankneg, rank.tipo
+				post.data, post.rankpos, post.rankneg, post.compartilhamentos, rank.tipo
 			ORDER BY "date" DESC;
 		END IF;
 	END;

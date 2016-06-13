@@ -36,6 +36,10 @@ module.exports = {
 			columnName: 'rankneg',
 			type: 'integer'
 		},
+		shares: {
+			columnName: 'compartilhamentos',
+			type: 'integer'
+		},
 		comments: {
 			collection: 'comment',
 			via: 'post'
