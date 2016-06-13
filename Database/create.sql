@@ -68,8 +68,6 @@ CREATE TABLE usuario
 	midia_path 	VARCHAR(126),
 	descricao	TEXT,
 	nascimento	TIMESTAMP,
-	"createdAt" timestamp with time zone,
-	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT usuario_pk
 		PRIMARY KEY (id),
@@ -92,8 +90,6 @@ CREATE TABLE post
 	rankNeg 			INT DEFAULT 0,
 	comentarios 		INT DEFAULT 0,
 	compartilhamentos 	INT DEFAULT 0,
-	"createdAt" 		timestamp with time zone,
-	"updatedAt" 		timestamp with time zone,
 	-- Constraints
 	CONSTRAINT post_pk
 		PRIMARY KEY (id),
@@ -117,8 +113,6 @@ CREATE TABLE comentario
 	escritor		INT,
 	conteudo		TEXT,
 	data 			TIMESTAMP WITH TIME ZONE,
-	"createdAt" timestamp with time zone,
-	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT comentario_pk
 		PRIMARY KEY (id),
@@ -143,8 +137,6 @@ CREATE TABLE rank
 	post 			INT,
 	avaliador		INT,
 	tipo 			CHAR,
-	"createdAt" timestamp with time zone,
-	"updatedAt" timestamp with time zone,
 	-- Constraints
 	CONSTRAINT rankPos_pk
 		PRIMARY KEY (post, avaliador),
