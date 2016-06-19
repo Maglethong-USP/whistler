@@ -32,6 +32,9 @@ myApp.config(function ($routeProvider, $locationProvider)
 		templateUrl: 'templates/myGroups.html',
 		controller: 'UserController'
 	}).when('/myprofile', {
+		templateUrl: 'templates/myProfile.html',
+		controller: 'UserController'
+	}).when('/editprofile', {
 		templateUrl: 'templates/editProfile.html',
 		controller: 'UserController'
 	}).when('/statistics', {

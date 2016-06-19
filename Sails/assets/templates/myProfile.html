@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <div>
 	<!-- Header -->
-	<ng-include src="'templates/header.inc.html'"></ng-include>
+	<ng-include src="'templates/included/header.inc.html'"></ng-include>
 	
 	<!-- Profile Info -->
 	<div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;">
@@ -29,6 +29,7 @@
 		</div>
 	</div>
 	
+	<!-- Write new Post -->
     <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;">
 		<div class="row">
 			<form role="form" style="margin-top:5px;margin-bottom:5px;margin-right:10px;margin-left:10px;">
@@ -40,74 +41,6 @@
 		</div>
 	</div>
 	
-	
-	<div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;">
-		
-		<div ng-repeat="post in viewingPosts">
-			<div class="post" >
-				<div class="row">
-					<div class="col-md-2" align="center">
-						<img ng-src="{{post.writer.picturePath}}" class="img-thumbnail" width="150" height="150"/> 
-						<h4>{{post.date}}</h4>
-						<div class="row" style="margin-top:150px;">
-							{{post.likes}} | {{post.dislikes}}
-							<div class="row">
-								<div class="btn-group" style="vertical-align:bottom;">
-									<button type="button" class="btn btn-success" ng-click="postCtrl.Like($index)">
-										+
-									</button>
-									<button type="button" class="btn btn-danger" ng-click="postCtrl.Dislike($index)">
-										-
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-10">
-						<div class="row">
-							<div class="col-md-10">
-								<h3>{{post.writer.profileName}}</h3>
-							</div>
-							<div class="col-md-2" align="right">
-								<button type="button" class="btn btn-default" >Share</button>
-							</div>
-						</div>
-						<div class="panel panel-default">
-							<div class="panel-body">
-								<p>{{post.content}}</p>
-							</div>
-						</div>
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<h4>Comentarios:</h4>
-							</div>
-							<div class="panel-body">
-								<div class="scroll">
-									<div ng-repeat="comment in post.comments">
-										<div class="comment">
-											{{comment.writer.profileName}}
-											: 
-											{{comment.content}}
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="panel-footer">
-								<form class="form-horizontal" role="form">
-									<div class="form-group">
-											<label class="col-sm-2 control-label">{{user.profileName}}:</label>
-											<div class="col-sm-9">
-												<input class="form-control" id="newComment" type="text"/>
-											</div>
-											<input type="submit" class="col-sm-1 btn btn-default" value="Enviar"/>
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-	</div>
+	<!-- Post List -->
+	<ng-include src="'templates/included/posts.inc.html'"></ng-include>
 </div>

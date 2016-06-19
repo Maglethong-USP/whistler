@@ -7,7 +7,7 @@
 
 <div ng-controller="UserController as userCtrl">
 	<!-- Header -->
-	<ng-include src="'templates/header.inc.html'"></ng-include>
+	<ng-include src="'templates/included/header.inc.html'"></ng-include>
 
 	<!-- Search Bar -->
 	<div class="container spicyBox">
@@ -21,84 +21,6 @@
 		</div>
 	</div>
 	
-	<!-- Feed Session -->
-	<div class="container spicyBox" style="margin-top:10px; margin-bottom:10px;" ng-controller="PostDisplayController as postCtrl">
-		<div ng-repeat="post in viewingPosts">
-			<div class="post" >
-				<div class="row">
-
-					<!-- Writer Picture & Post Likes/Dislikes -->
-					<div class="col-md-2" align="center">
-						<img ng-src="{{post.writer.picturePath}}" class="img-thumbnail" width="150" height="150"/> 
-						<h4>
-							<span> {{post.date | date:'medium'}} </span>
-						</h4>
-						<div class="row" style="margin-top:150px;">
-							{{post.likes}} | {{post.dislikes}}
-							<div class="row">
-								<div class="btn-group" style="vertical-align:bottom;">
-									<button type="button" class="btn btn-success" ng-click="postCtrl.Like($index)">
-										+
-									</button>
-									<button type="button" class="btn btn-danger" ng-click="postCtrl.Dislike($index)">
-										-
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Post Content & Comments -->
-					<div class="col-md-10">
-						<!-- Writer Name -->
-						<div class="row">
-							<div class="col-md-10">
-								<h3 ng-click="postCtrl.RedirectToWriterProfile($index)">{{post.writer.profileName}}</h3>
-							</div>
-							<div class="col-md-2" align="right">
-								<button type="button" class="btn btn-default" ng-click="postCtrl.Share($index)">Share</button>
-							</div>
-						</div>
-						<!-- Post Content -->
-						<div class="panel panel-default">
-							<div class="panel-body">
-								<p>{{post.content}}</p>
-							</div>
-						</div>
-						<!-- Post Comments -->
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<h4>Comentarios:</h4>
-							</div>
-							<div class="panel-body">
-								<div class="scroll">
-									<div ng-repeat="comment in post.comments">
-										<div class="comment">
-											{{comment.writer.profileName}}
-											: 
-											{{comment.content}}
-										</div>
-									</div>
-								</div>
-							</div>
-							<!-- Write new comment -->
-							<div class="panel-footer" ng-controller="CreateCommentController as commentCreate">
-								<form class="form-horizontal" role="form" ng-submit="commentCreate.Create($index)">
-									<div class="form-group">
-										<label class="col-sm-2 control-label">{{user.profileName}}:</label>
-										<div class="col-sm-9">
-											<input class="form-control" id="newComment" type="text" ng-model="commentInput"/>
-										</div>
-										<input type="submit" class="col-sm-1 btn btn-default" value="Enviar"/>
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			
-		</div>
-	</div>
-	
+	<!-- Post List -->
+	<ng-include src="'templates/included/posts.inc.html'"></ng-include>
 </div>

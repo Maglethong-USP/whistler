@@ -42,10 +42,10 @@
 					<div class="panel panel-default spicyHeadTopBotPad spicyHeadTopBotMarg spicyHeadProfileColor">
 						<div class="panel-body spicyHeadTopBotPad spicyHeadProfileColor">								
 							<div class="col-md-3">
-								<img ng-src="{{user.picturePath}}" alt="user image" class="spicyHeadPrifilePic" ng-click="redirect.ToMyProfile()"/>
+								<img ng-src="{{user.picturePath}}" alt="user image" class="spicyHeadPrifilePic" ng-click="redirect.ToProfileEdit()"/>
 							</div>	
 							<div class="col-md-9" ng-controller="LoginController as loginCtrl">
-								<p ng-click="redirect.ToMyProfile()">{{user.profileName}}</p>
+								<p ng-click="redirect.ToProfileEdit()">{{user.profileName}}</p>
 								<p ng-click="loginCtrl.Logout()">Sair</p>
 							</div>
 						</div>

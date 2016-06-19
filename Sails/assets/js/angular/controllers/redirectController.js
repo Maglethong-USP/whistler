@@ -21,13 +21,12 @@ myApp.controller('RedirectController', ['UserService', 'PostsService', '$locatio
 {
 	this.ToMyPosts = function()
 	{ 
-		alert('Not implemented!');
+		if(UserService.Get())
+			$location.path('/myprofile');
 	}
 
 	this.ToMyGroups = function()
 	{ 
-		alert('Not implemented!');
-
 		if(UserService.Get())
 			$location.path('/mygroups');
 	}
@@ -37,18 +36,14 @@ myApp.controller('RedirectController', ['UserService', 'PostsService', '$locatio
 		PostsService.LoadFeedPage();
 	}
 
-	this.ToMyProfile = function()
+	this.ToProfileEdit = function()
 	{
-		alert('Not implemented!');
-
 		if(UserService.Get())
-			$location.path('/myprofile');
+			$location.path('/editprofile');
 	}
 
 	this.ToStatistics = function()
 	{
-		alert('Not implemented!');
-
 		if(UserService.Get())
 			$location.path('/statistics');
 	}
