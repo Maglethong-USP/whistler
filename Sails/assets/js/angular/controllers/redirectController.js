@@ -38,10 +38,18 @@ myApp.controller('RedirectController', ['UserService', 'PostsService', '$locatio
 	}
 
 	this.ToMyProfile = function()
-	{ 
+	{
 		alert('Not implemented!');
 
 		if(UserService.Get())
 			$location.path('/myprofile');
+	}
+
+	this.ToStatistics = function()
+	{
+		alert('Not implemented!');
+
+		if(UserService.Get())
+			$location.path('/statistics');
 	}
 }]);

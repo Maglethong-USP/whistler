@@ -34,6 +34,9 @@ myApp.config(function ($routeProvider, $locationProvider)
 	}).when('/myprofile', {
 		templateUrl: 'templates/myProfile.html',
 		controller: 'UserController'
+	}).when('/statistics', {
+		templateUrl: 'templates/statistics.html',
+		controller: 'UserController'
 	}).when('/otherprofile', {
 		templateUrl: 'templates/otherProfile.html',
 		controller: 'UserController'

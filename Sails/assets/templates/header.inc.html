@@ -1,0 +1,57 @@
+<!-- Header to be included in all templates but the login.
+	Ideally the login would be an entirely separate page, but since we decided not to use sessions, loading another page would loose the current context of controllers erasing the data about the current logged user.
+
+	Future versions would use sessions removing this issue.
+-->
+
+
+<div ng-controller="UserController as userCtrl">
+	<div class="panel panel-default" ng-controller="RedirectController as redirect">
+		<div class="panel-body spicyHeadTopBotPad spicyHeadColor">
+			<div class="row spicyHeadTopBotPad">
+				<div class="col-md-2">
+					<h1 align="center">Whistler</h1>
+				</div>
+
+				<!-- Navigation Bar -->
+				<div class="col-md-7" align="center">
+					<div class="col-md-3" align="center">
+						<button type="button" class="btn btn-default spicyHeadBtn" ng-click="redirect.ToMyPosts()">
+							<h4>Meus Posts</h4>
+						</button>
+					</div>
+					<div class="col-md-3" align="center">
+						<button type="button" class="btn btn-default spicyHeadBtn" ng-click="redirect.ToMyGroups()">
+							<h4>Meus Grupos</h4>
+						</button>
+					</div>
+					<div class="col-md-3" align="center">
+						<button type="button" class="btn btn-default spicyHeadBtn" ng-click="redirect.ToMyFeed()">
+							<h4>Feed de Noticias</h4>
+						</button>
+					</div>
+					<div class="col-md-3" align="center">
+						<button type="button" class="btn btn-default spicyHeadBtn" ng-click="redirect.ToStatistics()">
+							<h4>Estatisticas</h4>
+						</button>
+					</div>
+				</div>
+
+				<!-- Profile Info -->
+				<div class="col-md-3 spicyHeadTopBotPad spicyHeadTopBotMarg spicyHeadColor">
+					<div class="panel panel-default spicyHeadTopBotPad spicyHeadTopBotMarg spicyHeadProfileColor">
+						<div class="panel-body spicyHeadTopBotPad spicyHeadProfileColor">								
+							<div class="col-md-3">
+								<img ng-src="{{user.picturePath}}" alt="user image" class="spicyHeadPrifilePic" ng-click="redirect.ToMyProfile()"/>
+							</div>	
+							<div class="col-md-9" ng-controller="LoginController as loginCtrl">
+								<p ng-click="redirect.ToMyProfile()">{{user.profileName}}</p>
+								<p ng-click="loginCtrl.Logout()">Sair</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
