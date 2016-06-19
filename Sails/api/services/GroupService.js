@@ -11,7 +11,6 @@ module.exports = {
 	{
 		Group
 		.find( {'owner': ownerID} )
-		.populate('owner')
 		.populate('groupMembers')
 		// Ideally we want to populate again with 'groupMembers[].member' but waterline won't do that
 		//   so we will request all the users after getting this structure on the client
@@ -20,7 +19,6 @@ module.exports = {
 		{
 			if(err) sails.log(err);
 
-			console.log(result);
 			callback(result);
 		});
 	},
@@ -32,7 +30,10 @@ module.exports = {
 			'name': groupName
 		};
 
-		Group.create(group).exec(function(err, result)
+		Group
+		.create(group)
+		.populate('groupMembers')
+		.exec(function(err, result)
 		{
 			if(err) sails.log(err);
 
@@ -66,33 +67,30 @@ module.exports = {
 	
 	AddMember : function(groupID, memberName, callback)
 	{
-		var groupMember = {
-			'groupId': ownerID,
-			'member': memberID
-		};
-
-		User.find({'profileName': memberName}).exec(function(err, foundArr)
+		User
+		.find({'profileName': memberName})
+		.exec(function(err, foundArr)
 		{
-			var ret = [];
+			if(err) sails.log(err);
 
 			for(var i=0; i<foundArr.length; i++)
 			{
-				GroupMember.create({'groupId': ownerID, 'member': foundArr[i].id}).exec(function(err, result)
+				GroupMember
+				.create({'group': groupID, 'member': foundArr[i].id})
+				.exec(function(err, result)
 				{
 					if(err) sails.log(err);
-
-					ret.push(result);
 				});
 			}
 
-			callback(ret);
+			callback(foundArr);
 		});
 	},
 	
 	RemoveMember : function(groupID, memberID, callback)
 	{
 		var groupMember = {
-			'groupId': ownerID,
+			'group': groupID,
 			'member': memberID
 		};
 
@@ -100,7 +98,10 @@ module.exports = {
 		{
 			if(err) sails.log(err);
 
-			callback(result);
+			if(result.length == 1)
+				callback(result[0]);
+			else
+				callback(null);
 		});
 	}
 }

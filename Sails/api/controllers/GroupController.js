@@ -41,7 +41,7 @@ module.exports = {
 	{
 		var groupID = (req.body) ? req.body.id : undefined;
 
-		GroupService.ChangeName(groupID, function(result)
+		GroupService.Delete(groupID, function(result)
 		{
 			return res.json(result);
 		});
@@ -51,7 +51,7 @@ module.exports = {
 	{
 		var groupInfo = (req.body) ? req.body : undefined;
 
-		GroupService.AddMember(groupInfo.owner, groupInfo.memberName, function(result)
+		GroupService.AddMember(groupInfo.id, groupInfo.memberName, function(result)
 		{
 			return res.json(result);
 		});
@@ -61,7 +61,7 @@ module.exports = {
 	{
 		var groupInfo = (req.body) ? req.body : undefined;
 
-		GroupService.RemoveMember(groupInfo.owner, groupInfo.member, function(result)
+		GroupService.RemoveMember(groupInfo.group, groupInfo.member, function(result)
 		{
 			return res.json(result);
 		});

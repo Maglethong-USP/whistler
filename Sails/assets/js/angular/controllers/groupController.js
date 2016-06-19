@@ -32,36 +32,33 @@ myApp.controller('GroupEditController', ['$scope', 'GroupService', function($sco
 	$scope.groupForm = {};
 
 
-
-	this.New = function()
-	{
-		alert("!");
-		GroupService.Create();
-	}
-
 	this.ChangeName = function(groupIdx)
 	{
-		alert("!");
 		GroupService.Rename(groupIdx, $scope.groupForm.newGroupName);
 		$scope.groupForm.newGroupName = '';
 	}
 
 	this.Delete = function(groupIdx)
 	{
-		alert("!");
 		GroupService.Delete(groupIdx);
 	}
 
 	this.AddMember = function(groupIdx)
 	{
-		alert("!");
 		GroupService.AddMember(groupIdx, $scope.groupForm.newMemberName);
 		$scope.groupForm.newMemberName = '';
 	}
 
-	this.RemoveMember = function(groupIdx, userIdx)
+	this.RemoveMember = function(groupIdx)
 	{
-		alert("!");
-		GroupService.RemoveMember(groupIdx, userIdx);
+		GroupService.RemoveMember(groupIdx, $scope.groupForm.choices);
+	}
+}]);
+
+myApp.controller('NewGroupController', ['$scope', 'GroupService', function($scope, GroupService)
+{
+	this.NewGroup = function()
+	{
+		GroupService.Create("New Group");
 	}
 }]);

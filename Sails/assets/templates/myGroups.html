@@ -10,38 +10,42 @@
 	<ng-include src="'templates/included/header.inc.html'"></ng-include>
 	
 	<!-- Groups Info -->
-	<div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;" ng-controller="GroupEditController as groupEditCtrl">
+	<div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;">
 		
 		<h2>Meus Grupos</h2>
 
 		<!-- New Group -->
-		<button type="button" class="btn btn-primary" style="margin-top: 5px;" ng-click="groupEditCtrl.New()">Novo Grupo</button>
+		<div ng-controller="NewGroupController as newGroupCtrl">
+			<button type="button" class="btn btn-primary" style="margin-top: 5px;" ng-click="newGroupCtrl.NewGroup()">Novo Grupo</button>
+		</div>
 		
-		<div class="post" >
-			<div class="row" style="margin-top: 5px;">
-				<div class="col-md-9">
-					<form class="form-horizontal" role="form" >
-						<div class="form-group">
-							<label class="col-sm-2 control-label">Nome do Grupo:</label>
-							<div class="col-sm-10">
-								<input class="form-control" id="focusedInput" type="text" ng-model="groupForm.newGroupName">
+		<!-- Display existing Groups -->
+		<div class="post" ng-controller="GroupDisplayController as groupCtrl">
+			<div ng-repeat="group in groupList" ng-controller="GroupEditController as groupEditCtrl">
+				<div class="row" style="margin-top: 5px;">
+					<div class="col-md-9">
+						<form class="form-horizontal" role="form" >
+							<div class="form-group">
+								<label class="col-sm-2 control-label">Nome do Grupo:</label>
+								<div class="col-sm-10">
+									<input class="form-control" id="focusedInput" type="text" ng-model="groupForm.newGroupName" placeholder="{{group.name}}">
+								</div>
 							</div>
-						</div>
-					</form>
+						</form>
+					</div>
+					<div class="col-md-3">
+						<button type="button" class="btn btn-primary" align="left" ng-click="groupEditCtrl.ChangeName($index)">Salvar alterações</button>
+					</div>
 				</div>
-				<div class="col-md-3">
-					<button type="button" class="btn btn-primary" align="left" ng-click="groupEditCtrl.ChangeName($index)">Salvar alterações</button>
-				</div>
-			</div>
 
-			<!-- List Groups -->
-			<div ng-controller="GroupDisplayController as groupCtrl">
-				<div class="row" style="margin: 5px;" ng-repeat="group in groupList">
+				<!-- List Groups -->
+				<div class="row" style="margin: 5px;">
 					<!-- Member List -->
 					<div class="col-md-7">
 						<label for="sel">Integrantes:</label>
-						<select multiple class="form-control" id="sel" style="height: 100px;">
-							<option ng-repeat="member in group.groupMembers">{{member.profileName}}</option>
+						
+						<select multiple class="form-control" style="height: 100px;" ng-model="groupForm.choices">
+							<option value="{{member.id}}" ng-repeat="member in group.groupMembers">{{member.profileName}}</option>
 						</select>
 					</div>
 
@@ -50,7 +54,7 @@
 						<form class="form-horizontal" role="form" ng-submit="groupEditCtrl.AddMember($index)">
 							<div class="form-group">
 								<div class="col-sm-8">
-									<input class="form-control" type="text" value="">
+									<input class="form-control" type="text" value="" ng-model="groupForm.newMemberName">
 								</div>
 								<input type="submit" class="col-sm-4 btn btn-success" value="Adicionar Pessoa"/>
 							</div>
@@ -58,7 +62,7 @@
 						<!-- Remove Member/Group -->
 						<div class="row" style="margin-top: 30px;">
 							<div class="col-sm-6" align="left">
-								<button type="button" class="btn btn-primary" style="margin: 5px;" ng-click="groupEditCtrl.RemoveMember($index, _____)">Remover Pessoas Selecionadas</button>
+								<button type="button" class="btn btn-primary" style="margin: 5px;" ng-click="groupEditCtrl.RemoveMember($index)">Remover Pessoas Selecionadas</button>
 							</div>
 							<div class="col-sm-6" align="right">
 								<button type="button" class="btn btn-primary" style="margin: 5px;background-color:#cc3300;border-color:#992600;" ng-click="groupEditCtrl.Delete($index)">Excluir Grupo</button>
