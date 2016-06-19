@@ -1,48 +1,49 @@
 <!-- Grupo:
-    Rafael Gallo
-    Andreas Munte
-    Guilherme Muzzi
+	Rafael Gallo
+	Andreas Munte
+	Guilherme Muzzi
 -->
 <!DOCTYPE html>
 
 <div ng-controller="UserController as userCtrl">
+	<!-- Header -->
 	<div class="panel panel-default" ng-controller="RedirectController as redirect">
-		<div class="panel-body" style="background-color: #00cc99; padding-bottom:2px; padding-top:2px;">
-			<div class="row" style="padding-bottom:2px; padding-top:2px;">
+		<div class="panel-body spicyHeadTopBotPad spicyHeadColor">
+			<div class="row spicyHeadTopBotPad">
 				<div class="col-md-2">
 					<h1 align="center">Whistler</h1>
 				</div>
+
+				<!-- Navigation Bar -->
 				<div class="col-md-7" align="center">
 					<div class="col-md-3" align="center">
-						<button type="button" class="btn btn-default" 
-								style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyPosts()">
+						<button type="button" class="btn btn-default spicyHeadBtn" ng-click="redirect.ToMyPosts()">
 							<h4>Meus Posts</h4>
 						</button>
 					</div>
 					<div class="col-md-3" align="center">
-						<button type="button" class="btn btn-default"
-								style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyGroups()">
+						<button type="button" class="btn btn-default spicyHeadBtn" ng-click="redirect.ToMyGroups()">
 							<h4>Meus Grupos</h4>
 						</button>
 					</div>
 					<div class="col-md-3" align="center">
-						<button type="button" class="btn btn-default"
-								style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToMyFeed()">
+						<button type="button" class="btn btn-default spicyHeadBtn" ng-click="redirect.ToMyFeed()">
 							<h4>Feed de Noticias</h4>
 						</button>
 					</div>
 					<div class="col-md-3" align="center">
-						<button type="button" class="btn btn-default"
-								style="border: 0px #00cc99;background-color:#00b386;padding-bottom:4px;padding-top:4px;margin-top:20px;margin-bottom:0px;" ng-click="redirect.ToStatistics()">
+						<button type="button" class="btn btn-default spicyHeadBtn" ng-click="redirect.ToStatistics()">
 							<h4>Estatisticas</h4>
 						</button>
 					</div>
 				</div>
-				<div class="col-md-3" style="background-color: #00cc99;padding-bottom:2px; padding-top:2px; margin-bottom:2px; margin-top:2px;">
-					<div class="panel panel-default" style="border: 0px #00e6ac;background-color: #00e6ac;padding-bottom:2px; padding-top:2px;margin-bottom:2px; margin-top:2px;">
-						<div class="panel-body" style="background-color: #00e6ac; padding-bottom:2px; padding-top:2px;">								
+
+				<!-- Profile Info -->
+				<div class="col-md-3 spicyHeadTopBotPad spicyHeadTopBotMarg spicyHeadColor">
+					<div class="panel panel-default spicyHeadTopBotPad spicyHeadTopBotMarg spicyHeadProfileColor">
+						<div class="panel-body spicyHeadTopBotPad spicyHeadProfileColor">								
 							<div class="col-md-3">
-								<img ng-src="{{user.picturePath}}" alt="user image" style="width:60px;height:60px;" ng-click="redirect.ToMyProfile()"/>
+								<img ng-src="{{user.picturePath}}" alt="user image" class="spicyHeadPrifilePic" ng-click="redirect.ToMyProfile()"/>
 							</div>	
 							<div class="col-md-9" ng-controller="LoginController as loginCtrl">
 								<p ng-click="redirect.ToMyProfile()">{{user.profileName}}</p>
@@ -55,7 +56,8 @@
 		</div>
 	</div>
 	
-    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;">
+	<!-- Search Bar -->
+	<div class="container spicyBox">
 		<div class="row" style="margin-bottom:2px;margin-top:2px;" ng-controller="PostSearchController as searchCtrl">
 			<div class="col-md-1">
 				<button type="button" class="btn btn-default" style="padding-bottom:4px;padding-top:4px" ng-click="searchCtrl.Search()">Buscar</button>
@@ -64,13 +66,15 @@
 				<input type="text"  class="form-control" style="padding-bottom:4px;padding-top:4px;" ng-model="searchForm"/>
 			</div>
 		</div>
-    </div>
+	</div>
 	
-	
-    <div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:5px; padding-bottom:5px;margin-top:10px; margin-bottom:10px;" ng-controller="PostDisplayController as postCtrl">
-    	<div ng-repeat="post in viewingPosts">
+	<!-- Feed Session -->
+	<div class="container spicyBox" style="margin-top:10px; margin-bottom:10px;" ng-controller="PostDisplayController as postCtrl">
+		<div ng-repeat="post in viewingPosts">
 			<div class="post" >
 				<div class="row">
+
+					<!-- Writer Picture & Post Likes/Dislikes -->
 					<div class="col-md-2" align="center">
 						<img ng-src="{{post.writer.picturePath}}" class="img-thumbnail" width="150" height="150"/> 
 						<h4>
@@ -90,7 +94,10 @@
 							</div>
 						</div>
 					</div>
+
+					<!-- Post Content & Comments -->
 					<div class="col-md-10">
+						<!-- Writer Name -->
 						<div class="row">
 							<div class="col-md-10">
 								<h3 ng-click="postCtrl.RedirectToWriterProfile($index)">{{post.writer.profileName}}</h3>
@@ -99,11 +106,13 @@
 								<button type="button" class="btn btn-default" ng-click="postCtrl.Share($index)">Share</button>
 							</div>
 						</div>
+						<!-- Post Content -->
 						<div class="panel panel-default">
 							<div class="panel-body">
 								<p>{{post.content}}</p>
 							</div>
 						</div>
+						<!-- Post Comments -->
 						<div class="panel panel-default">
 							<div class="panel-heading">
 								<h4>Comentarios:</h4>
@@ -119,6 +128,7 @@
 									</div>
 								</div>
 							</div>
+							<!-- Write new comment -->
 							<div class="panel-footer" ng-controller="CreateCommentController as commentCreate">
 								<form class="form-horizontal" role="form" ng-submit="commentCreate.Create($index)">
 									<div class="form-group">

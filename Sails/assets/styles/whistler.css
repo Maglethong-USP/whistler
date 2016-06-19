@@ -1,30 +1,81 @@
 div.post{
-	border-radius:5px;
-	border:1px solid #c0c0c0;
-	padding:7px;
-	margin-top:10px; 
-	margin-bottom:10px;
+	border-radius: 	5px;
+	border: 		1px solid #c0c0c0;
+	padding: 		7px;
+	margin-top: 	10px;
+	margin-bottom: 	10px;
 }
 
 div.comment{
-	border-radius:5px;
-	border:1px solid #c0c0c0;
-	padding:2px;
-	margin-top:2px;
-	margin-bottom:2px;
+	border-radius: 	5px;
+	border: 		1px solid #c0c0c0;
+	padding: 		2px;
+	margin-top: 	2px;
+	margin-bottom: 	2px;
 }
 
 div.scroll{
-	overflow-y:auto;
-	max-height:150px;
+	overflow-y: 	auto;
+	max-height: 	150px;
 }
 
 textarea{ 
-	width: 1100px; 
-	min-width:1100px; 
-	max-width:1100px; 
+	width: 		1100px;
+	min-width: 	1100px;
+	max-width: 	1100px;
 
-	height:150px; 
-	min-height:150px;  
-	max-height:150px;
+	height: 	150px;
+	min-height: 150px;
+	max-height: 150px;
 }
+
+/*  ============================
+			Spicy styles 		
+	============================	*/
+
+/* Head Styles */
+
+button.spicyHeadBtn{
+	border: 			0px #00cc99;
+	background-color:	#00b386;
+	padding-bottom: 	4px;
+	padding-top: 		4px;
+	margin-top: 		20px;
+	margin-bottom: 		0px;
+}
+
+.spicyHeadColor{
+	background-color: 	#00cc99;
+}
+
+.spicyHeadProfileColor{
+	border: 			0px #00e6ac;
+	background-color: 	#00e6ac;
+}
+
+.spicyHeadPrifilePic{
+	width:				60px;
+	height:				60px;
+}
+
+.spicyHeadTopBotPad{
+	padding-bottom: 	2px;
+	padding-top: 		2px;
+}
+
+.spicyHeadTopBotMarg{
+	margin-bottom: 		2px;
+	margin-top: 		2px;
+}
+
+/* Common */
+
+.spicyBox{
+	border-radius: 		5px;
+	box-shadow: 		-2px 3px 5px grey;
+	border: 			1px solid #c0c0c0;
+	padding-top: 		5px;
+	padding-bottom: 	5px;
+}
+
+/* Post */
