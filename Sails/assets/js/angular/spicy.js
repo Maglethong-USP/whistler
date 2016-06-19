@@ -32,7 +32,7 @@ myApp.config(function ($routeProvider, $locationProvider)
 		templateUrl: 'templates/myGroups.html',
 		controller: 'UserController'
 	}).when('/myprofile', {
-		templateUrl: 'templates/myProfile.html',
+		templateUrl: 'templates/editProfile.html',
 		controller: 'UserController'
 	}).when('/statistics', {
 		templateUrl: 'templates/statistics.html',

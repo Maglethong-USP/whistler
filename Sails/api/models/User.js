@@ -31,13 +31,13 @@ module.exports = {
 			columnName: 'midia_path',
 			type: 'string'
 		},
-		descricao: {
+		description: {
 			columnName: 'descricao',
 			type: 'text'
 		},
-		nascimento: {
+		birth: {
 			columnName: 'nascimento',
-			type: 'string'
+			type: 'date'
 		},
 		posts: {
 			collection: 'post',

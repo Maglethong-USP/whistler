@@ -86,3 +86,46 @@ myApp.controller('RegisterController', ['$scope', 'UserService', function( $scop
 		}
 	};
 }]);
+
+// Edit profile
+myApp.controller('EditProfileController', ['$scope', 'UserService', function( $scope, UserService )
+{
+	$scope.profileInfoForm = {};
+
+	this.SaveChanges = function()
+	{
+		UserService.ChangeProfileInfo($scope.profileInfoForm.profileName, $scope.profileInfoForm.birth, $scope.profileInfoForm.description);
+		$scope.profileInfoForm = {};
+	};
+}]);
+
+// Change password
+myApp.controller('EditPasswordController', ['$scope', 'UserService', function( $scope, UserService )
+{
+	$scope.newPasswordForm = {};
+
+	this.SaveChanges = function()
+	{
+		// Match check
+		if($scope.newPasswordForm.newPassword == $scope.newPasswordForm.confirmation)
+		{
+			UserService.ChangePassword($scope.newPasswordForm.password, $scope.newPasswordForm.newPassword);
+			$scope.newPasswordForm = {};
+		}
+		else
+		{
+			alert("Password confirmation mismatch.");
+			$scope.newPasswordForm.confirmation = '';
+		}
+	};
+}]);
+
+// Delete account
+myApp.controller('DeleteAccountController', ['$scope', 'UserService', function( $scope, UserService )
+{
+	this.DeleteAccount = function()
+	{
+		alert("!"); // TODO [Debug]
+		UserService.DeleteAccount();
+	};
+}]);

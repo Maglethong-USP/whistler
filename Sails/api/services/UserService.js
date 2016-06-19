@@ -48,7 +48,10 @@ module.exports = {
 				sails.log(err);
 			}
 
-			callback(result);
+			UserService.CheckPictureExists(result.picturePath, function(path){
+				result.picturePath = path;
+				callback(result);
+			});
 		});
 	},
 
@@ -65,7 +68,7 @@ module.exports = {
 				sails.log(err);
 			}
 
-			return res.json(result);
+			return callback(result);
 		});
 	},
 
@@ -82,7 +85,10 @@ module.exports = {
 				sails.log(err);
 			}
 
-			callback(result);
+			UserService.CheckPictureExists(result.picturePath, function(path){
+				result.picturePath = path;
+				callback(result);
+			});
 		});
 	},
 
@@ -118,7 +124,7 @@ module.exports = {
 				sails.log(err);
 			}
 
-			return res.json(result);
+			callback(result);
 		});
 	},
 
@@ -140,5 +146,39 @@ module.exports = {
 					callback(path);
 			});
 		}
+	},
+
+	ChangeProfileInfo : function(userId, profileName, birth, description, callback)
+	{
+		var newUserInfo = {};
+		var doIt = false;
+		if(typeof profileName !== 'undefined') {newUserInfo.profileName = profileName; doIt=true;}
+		if(birth != null && typeof birth !== 'undefined') {newUserInfo.birth = birth; doIt=true;}
+		if(typeof description !== 'undefined') {newUserInfo.description = description; doIt=true;}
+
+		if(doIt)
+		{
+			User.update({'id': userId}, newUserInfo, function(err, updated){
+				if(err) sails.log(err);
+				console.log(updated);
+				callback(updated[0]);
+			});
+		}
+		else
+		{
+			callback(null);
+		}
+	},
+
+	ChangePassword : function(userId, oldPassword, newPassword, callback)
+	{
+		User.update({'id': userId, 'password': oldPassword}, {'password': newPassword}, function(err, updated){
+			if(err) sails.log(err);
+
+			if(updated.length == 1)
+				callback(updated[0]);
+			else
+				callback(null);
+		});
 	}
 }

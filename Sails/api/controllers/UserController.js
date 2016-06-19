@@ -50,6 +50,41 @@ module.exports = {
 	Unfollow : function(req, res)
 	{
 
+	},
+
+	// Change Profile Info
+	ChangeProfileInfo : function(req, res)
+	{
+		var userInfo = (req.body) ? req.body : undefined;
+
+		UserService.ChangeProfileInfo(userInfo.id, userInfo.profileName, 
+										userInfo.birth, userInfo.description, 
+										function(result)
+		{
+			return res.json(result);
+		});
+	},
+
+	// Change Profile Info
+	ChangePassword : function(req, res)
+	{
+		var userInfo = (req.body) ? req.body : undefined;
+
+		UserService.ChangePassword(userInfo.id, userInfo.oldPassword, 
+									userInfo.newPassword, function(result)
+		{
+			return res.json(result);
+		});
+	},
+
+	// Change Profile Info
+	DeleteAccount : function(req, res)
+	{
+		var userID = (req.body) ? req.body.id : undefined;
+
+		UserService.Delete(userID, function(result){
+			return res.json(result);
+		});
 	}
 };
 
