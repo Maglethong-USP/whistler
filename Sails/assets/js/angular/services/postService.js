@@ -31,8 +31,6 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 
 	var LoadComments = function(postIdx)
 	{
-		
-
 		$http.post('/comment/GetComment', {
 			'postid': viewingPosts[postIdx].id
 		}).then(
@@ -75,7 +73,11 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 					// Success
 					function(response)
 					{
-						// TODO [push new post into viewingPosts and call callbacks]
+						// TODO [check for SGQ exception]
+						var newPost = response.data;
+						newPost.writer = user;
+						viewingPosts.unshift(newPost);
+						notifyObservers();
 					},
 					// Error
 					function(response)

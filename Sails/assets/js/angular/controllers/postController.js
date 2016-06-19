@@ -55,11 +55,12 @@ myApp.controller('PostDisplayController', ['$scope', 'PostsService', function( $
 // LogOut Controller
 myApp.controller('PostCreateController', ['$scope', 'PostsService', function( $scope, PostsService )
 {
-	$scope.postForm = { 'content': 'Hahaha!' }; // TODO [escrever novo post na view]
+	$scope.postForm = { }; // TODO [escrever novo post na view]
 
 	this.Create = function()
 	{
 		PostsService.Create($scope.postForm.content);
+		$scope.postForm = {};
 	}
 }]);
 

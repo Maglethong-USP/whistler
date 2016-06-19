@@ -125,7 +125,25 @@ myApp.controller('DeleteAccountController', ['$scope', 'UserService', function( 
 {
 	this.DeleteAccount = function()
 	{
-		alert("!"); // TODO [Debug]
 		UserService.DeleteAccount();
+	};
+}]);
+
+// View other user account
+myApp.controller('ViewUserController', ['$scope', 'ViewUserService', function( $scope, ViewUserService )
+{
+	$scope.otherUser = ViewUserService.Get();
+
+	$scope.$watch(function () { return ViewUserService.Get(); }, function (newVal, oldVal) 
+	{
+		$scope.user = ViewUserService.Get();
+	});
+
+
+
+	this.LoadUser = function(userID)
+	{
+		alert("!"); // TODO [Debug]
+		ViewUserService.LoadUser(userID);
 	};
 }]);
