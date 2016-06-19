@@ -83,16 +83,18 @@ INSERT INTO rank (post, avaliador, tipo)
 
 
 /* Grupo */
-INSERT INTO grupo (dono, nome) 
-	VALUES (0, 'Bros');
+INSERT INTO grupo (id, dono, nome) 
+	VALUES (0, 0, 'Bros');
+
+ALTER SEQUENCE grupo_id_seq RESTART WITH 1;
 
 
 /* Membro Grupo */
-INSERT INTO membroGrupo (dono, nome, membro) 
-	VALUES (0, 'Bros', 1);
+INSERT INTO membroGrupo (grupo, membro) 
+	VALUES (0, 1);
 
-INSERT INTO membroGrupo (dono, nome, membro) 
-	VALUES (0, 'Bros', 2);
+INSERT INTO membroGrupo (grupo, membro) 
+	VALUES (0, 2);
 
 
 /* Midia */

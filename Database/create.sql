@@ -158,11 +158,14 @@ CREATE TABLE rank
 CREATE TABLE grupo
 (
 	-- Atributos
+	id 			SERIAL,
 	dono		INT,
 	nome		VARCHAR(64),
 	-- Constraints
 	CONSTRAINT grupo_pk
-		PRIMARY KEY (dono, nome),
+		PRIMARY KEY (id),
+	CONSTRAINT grupo_sk
+		UNIQUE (dono, nome),
 	CONSTRAINT grupo_fk_usuario 
 		FOREIGN KEY (dono)
 		REFERENCES usuario (id)
@@ -175,15 +178,14 @@ CREATE TABLE grupo
 CREATE TABLE membroGrupo
 (
 	-- Atributos
-	dono		INT,
-	nome		VARCHAR(64),
+	grupo		INT,
 	membro		INT,
 	-- Constraints
 	CONSTRAINT membroGrupo_pk
-		PRIMARY KEY (dono, nome, membro),
+		PRIMARY KEY (grupo, membro),
 	CONSTRAINT membroGrupo_fk_grupo 
-		FOREIGN KEY (dono, nome)
-		REFERENCES grupo (dono, nome)
+		FOREIGN KEY (grupo)
+		REFERENCES grupo (id)
 		ON DELETE CASCADE,
 	CONSTRAINT membroGrupo_fk_usuario 
 		FOREIGN KEY (membro)
@@ -570,9 +572,11 @@ AS $body$
 
 			/* Posts referring to a group with this user */
 			SELECT post FROM post_ref_grupo
+			JOIN grupo
+				ON grupo.dono = post_ref_grupo.grupo_dono
+				AND grupo.nome = post_ref_grupo.grupo_nome
 			JOIN membroGrupo 
-				ON membroGrupo.dono = post_ref_grupo.grupo_dono
-				AND membroGrupo.nome = post_ref_grupo.grupo_nome
+				ON membroGrupo.grupo = grupo.id
 			WHERE membroGrupo.membro = $1
 		)
 
@@ -761,11 +765,8 @@ AS $body$
 				OR post.id IN
 				(
 					SELECT post.id FROM post
-						JOIN usuario ON usuario.id = post.escritor
-						JOIN membroGrupo ON usuario.id = membroGrupo.membro
-						JOIN grupo
-							ON grupo.dono = membroGrupo.dono
-							AND grupo.nome = membroGrupo.nome
+						JOIN membroGrupo ON membroGrupo.grupo = usuario.id
+						JOIN grupo ON grupo.id = membroGrupo.grupo
 					WHERE grupo.dono = $1
 						AND grupo.nome = ANY(users)
 				)
@@ -837,11 +838,8 @@ AS $body$
 				OR post.id IN
 				(
 					SELECT post.id FROM post
-						JOIN usuario ON usuario.id = post.escritor
-						JOIN membroGrupo ON usuario.id = membroGrupo.membro
-						JOIN grupo
-							ON grupo.dono = membroGrupo.dono
-							AND grupo.nome = membroGrupo.nome
+						JOIN membroGrupo ON membroGrupo.grupo = usuario.id
+						JOIN grupo ON grupo.id = membroGrupo.grupo
 					WHERE grupo.dono = $1
 						AND grupo.nome = ANY(users)
 				)
