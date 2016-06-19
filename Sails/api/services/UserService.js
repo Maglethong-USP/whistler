@@ -14,22 +14,20 @@ module.exports = {
 			'password': password
 		};
 
-		User.find(user).exec(function(err, result)
+		User.findOne(user).exec(function(err, result)
 		{
 			if(err)
 			{
 				sails.log(err);
-			}
-
-			if(result.length == 1)
-			{
-				UserService.CheckPictureExists(result[0].picturePath, function(path){
-					result[0].picturePath = path;
-					callback(result[0]);
-				});
+				callback(result);
 			}
 			else
-				callback({});
+			{
+				UserService.CheckPictureExists(result.picturePath, function(path){
+					result.picturePath = path;
+					callback(result);
+				});
+			}
 		});
 	},
 
@@ -46,12 +44,15 @@ module.exports = {
 			if(err)
 			{
 				sails.log(err);
-			}
-
-			UserService.CheckPictureExists(result.picturePath, function(path){
-				result.picturePath = path;
 				callback(result);
-			});
+			}
+			else
+			{
+				UserService.CheckPictureExists(result.picturePath, function(path){
+					result.picturePath = path;
+					callback(result);
+				});
+			}
 		});
 	},
 
@@ -74,21 +75,20 @@ module.exports = {
 
 	Get : function(userId, callback) // TODO [Test]
 	{
-		var user = {
-			'id': userId
-		};
-
-		User.findone(user).exec(function(err, result)
+		User.findOne( {'id': userId} ).exec(function(err, result)
 		{
 			if(err)
 			{
 				sails.log(err);
-			}
-
-			UserService.CheckPictureExists(result.picturePath, function(path){
-				result.picturePath = path;
 				callback(result);
-			});
+			}
+			else
+			{
+				UserService.CheckPictureExists(result.picturePath, function(path){
+					result.picturePath = path;
+					callback(result);
+				});
+			}
 		});
 	},
 
@@ -173,12 +173,24 @@ module.exports = {
 	ChangePassword : function(userId, oldPassword, newPassword, callback)
 	{
 		User.update({'id': userId, 'password': oldPassword}, {'password': newPassword}, function(err, updated){
-			if(err) sails.log(err);
-
-			if(updated.length == 1)
-				callback(updated[0]);
+			
+			if(err)
+			{
+				sails.log(err);
+				callback(result);
+			}
 			else
-				callback(null);
+			{
+				if(updated.length == 1)
+				{
+					UserService.CheckPictureExists(updated[0].picturePath, function(path){
+													updated[0].picturePath = path;
+													callback(updated[0]);
+					});
+				}
+				else
+					callback(null);
+			}			
 		});
 	}
 }

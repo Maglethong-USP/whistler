@@ -173,16 +173,19 @@ CREATE TABLE grupo
 );
 
 /** ==================== Tabela Membro Grupo ====================
-	
+	ID required for waterline to work properly
  */
 CREATE TABLE membroGrupo
 (
 	-- Atributos
+	id 			SERIAL,
 	grupo		INT,
 	membro		INT,
 	-- Constraints
 	CONSTRAINT membroGrupo_pk
-		PRIMARY KEY (grupo, membro),
+		PRIMARY KEY (id),
+	CONSTRAINT membroGrupo_sk
+		UNIQUE (grupo, membro),
 	CONSTRAINT membroGrupo_fk_grupo 
 		FOREIGN KEY (grupo)
 		REFERENCES grupo (id)

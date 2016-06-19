@@ -15,35 +15,53 @@ var myApp = angular.module('spicyApp');
 
 
 
-
-myApp.controller('GroupController', ['$scope', function($scope)
+myApp.controller('GroupDisplayController', ['$scope', 'GroupService', function($scope, GroupService)
 {
-	$scope.groupList = [];
+	$scope.groupList = GroupService.Get();
 
-
-
-	this.NewGroup = function()
+	var WatchCallback = function()
 	{
+		$scope.groupList = GroupService.Get();
+	}
+	GroupService.RegisterObserverCallback(WatchCallback);
+}]);
 
+
+myApp.controller('GroupEditController', ['$scope', 'GroupService', function($scope, GroupService)
+{
+	$scope.groupForm = {};
+
+
+
+	this.New = function()
+	{
+		alert("!");
+		GroupService.Create();
 	}
 
-	this.SaveGroup = function(groupIdx)
+	this.ChangeName = function(groupIdx)
 	{
-
+		alert("!");
+		GroupService.Rename(groupIdx, $scope.groupForm.newGroupName);
+		$scope.groupForm.newGroupName = '';
 	}
 
-	this.DeleteGroup = function(groupIdx)
+	this.Delete = function(groupIdx)
 	{
-
+		alert("!");
+		GroupService.Delete(groupIdx);
 	}
 
-	this.AddMember = function(groupIdx, memberName)
+	this.AddMember = function(groupIdx)
 	{
-
+		alert("!");
+		GroupService.AddMember(groupIdx, $scope.groupForm.newMemberName);
+		$scope.groupForm.newMemberName = '';
 	}
 
-	this.RemoveMember = function(groupIdx, memberIdx)
+	this.RemoveMember = function(groupIdx, userIdx)
 	{
-
+		alert("!");
+		GroupService.RemoveMember(groupIdx, userIdx);
 	}
 }]);

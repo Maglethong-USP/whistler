@@ -34,7 +34,7 @@ module.exports = {
 	{
 		var userId = (req.body) ? req.body.userId : undefined;
 
-		UserService.Register(userId, function(result)
+		UserService.Get(userId, function(result)
 		{
 			return res.json(result);
 		});

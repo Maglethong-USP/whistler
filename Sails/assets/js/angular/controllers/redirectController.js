@@ -17,7 +17,7 @@ var myApp = angular.module('spicyApp');
 
 
 // Redirect controller
-myApp.controller('RedirectController', ['UserService', 'PostsService', '$location', function(UserService, PostsService, $location)
+myApp.controller('RedirectController', ['UserService', 'PostsService', 'GroupService', '$location', function(UserService, PostsService, GroupService, $location)
 {
 	this.ToMyPosts = function()
 	{ 
@@ -26,9 +26,8 @@ myApp.controller('RedirectController', ['UserService', 'PostsService', '$locatio
 	}
 
 	this.ToMyGroups = function()
-	{ 
-		if(UserService.Get())
-			$location.path('/mygroups');
+	{
+		GroupService.LoadGroupsPage();
 	}
 
 	this.ToMyFeed = function()
