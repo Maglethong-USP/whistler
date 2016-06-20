@@ -20,6 +20,9 @@ var cssFilesToInject = [
   // Bootstrap
   'bower_components/bootstrap/dist/css/bootstrap.min.css',
 
+  // Angular styles
+  'bower_components/angular/angular-csp.css',
+
   'styles/**/*.css'
 ];
 

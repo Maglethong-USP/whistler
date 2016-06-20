@@ -108,7 +108,6 @@ myApp.factory('PostsService', ['UserService', '$http', '$location', function(Use
 
 						for(var i=0; i<viewingPosts.length; i++)
 						{
-//							console.log(viewingPosts[i].commentCount + '(' + i + ' )');
 							if(viewingPosts[i].commentCount > 0)
 								LoadComments(i);
 						}

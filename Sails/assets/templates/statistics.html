@@ -9,39 +9,54 @@
 	<ng-include src="'templates/included/header.inc.html'"></ng-include>
 	
 	<!-- Lorem Ipsum -->
-	<div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;">
+	<div class="container" style="border-radius:5px; box-shadow: -2px 3px 5px grey; border:1px solid #c0c0c0; padding-top:20px; padding-bottom:20px;margin-top:10px; margin-bottom:10px;" ng-controller="ReportVisualizationController as repTab">
 		<ul class="nav nav-tabs">
-			<li class="active"><a href="#TopUsers">Top 20 Usuários</a></li>
-			<li><a href="#TopPosts">Top 20 Posts</a></li>
+			<li ng-class="{ active: repTab.isActive(0) }">
+				<a href="" ng-click="repTab.setActive(0)">Top 20 Usuários</a>
+			</li>
+			<li ng-class="{ active: repTab.isActive(1) }">
+				<a href="" ng-click="repTab.setActive(1)">Top 20 Posts</a>
+			</li>
 		</ul>
+
 		<div class="tab-content">
-			<div id="TopUsers" class="tab-pane fade in active">
-				<form role="form">
+			<!-- Top20 Users -->
+			<div id="TopUsers" ng-show="repTab.isActive(0)" ng-controller="Top20UserReportController as RepCtrl">
+				<!-- Search Form -->
+				<form role="form" ng-submit="RepCtrl.LoadReport()">
 					<div class="form-group">
 						<label for="minDate">Data Minima:</label>
-						<input type="date" class="form-control" id="minDate">
+						<input type="date" class="form-control" id="minDate" ng-model="timeDeltaForm.start" placeholder="YYYY-MM-DD">
 					</div>
 					<div class="form-group">
 						<label for="maxDate">Data Maxima:</label>
-						<input type="date" class="form-control" id="maxDate">
+						<input type="date" class="form-control" id="maxDate" ng-model="timeDeltaForm.end" placeholder="YYYY-MM-DD">
 					</div>
 					<button type="submit" class="btn btn-default">Buscar Estatisticas</button>
 				</form>
-				
+
+				<!-- Showing results -->
+				<!-- TODO [Results are already being searched and loaded] -->
+
 			</div>
-			<div id="TopPosts" class="tab-pane fade">
-				<form role="form">
+			<!-- Top20 Posts -->
+			<div id="TopPosts" ng-show="repTab.isActive(1)" ng-controller="Top20PostsReportController as RepCtrl">
+				<!-- Search Form -->
+				<form role="form" ng-submit="RepCtrl.LoadReport()">
 					<div class="form-group">
 						<label for="minDate">Data Minima:</label>
-						<input type="date" class="form-control" id="minDate">
+						<input type="date" class="form-control" id="minDate" ng-model="timeDeltaForm.start" placeholder="YYYY-MM-DD">
 					</div>
 					<div class="form-group">
 						<label for="maxDate">Data Maxima:</label>
-						<input type="date" class="form-control" id="maxDate">
+						<input type="date" class="form-control" id="maxDate" ng-model="timeDeltaForm.end" placeholder="YYYY-MM-DD">
 					</div>
 					<button type="submit" class="btn btn-default">Buscar Estatisticas</button>
 				</form>
 				
+				<!-- Showing results -->
+				<!-- TODO [Results are already being searched and loaded] -->
+
 			</div>
 		</div>
 	</div>

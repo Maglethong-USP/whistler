@@ -55,4 +55,4 @@ myApp.factory('ViewUserService', ['$http', function($http)
 				return user;
 		}
 	}
-}
+}]);
